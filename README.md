@@ -34,3 +34,5 @@ set -a; . ./.env; set +a; EXIT_WHEN_IDLE_SECS=3 rust-processor/target/release/te
 ```
 
 Tests: `(cd rust-processor && cargo test)`, `(cd legacy && sbt test)`. Full evidence reproduction: `scripts/evidence.sh`.
+
+Agents: rules and pitfalls in [AGENTS.md](AGENTS.md); reusable skills in `.agents/skills/` (`migrate-streaming-job`, `change-contract`, `regenerate-evidence`, `run-demo`).
