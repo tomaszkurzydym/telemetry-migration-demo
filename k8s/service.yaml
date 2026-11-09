@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: rust-processor
+  namespace: telemetry-demo
+  labels: {app: rust-processor, lifecycle: production-follow-up}
+spec:
+  clusterIP: None
+  selector: {app: rust-processor}
+  ports:
+    - {name: metrics, port: 9100, targetPort: metrics}

@@ -52,6 +52,13 @@ class LegacyCharacterizationSpec extends AnyFunSuite {
     assert(code(ev(""","location":{"lat":91,"lon":0}""")) == "INVALID_LOCATION")
   }
 
+  test("numbers outside the contract decimal range are INVALID_TYPE, including extreme exponents") {
+    def pv(v: String) = code(ev().replace("398.2", v))
+    Seq("1e30", "1e-29", "1e2147483647", "1e-2147483647", "1e9999999999", "79228162514264337593543950336").foreach(v => assert(pv(v) == "INVALID_TYPE", v))
+    Seq("79228162514264337593543950335", "1.500000000000000000000000000000", "0e2147483647").foreach(v => assert(pv(v) == "VALID", v))
+    assert(code(ev(""","location":{"lat":1e2147483647,"lon":0}""")) == "INVALID_LOCATION")
+  }
+
   test("location encrypted with AAD binding, random nonce, tamper rejected") {
     val s = ev(""","location":{"lat":12.345678,"lon":-30.5}""")
     val n1 = norm(s); val n2 = norm(s)
@@ -79,6 +86,9 @@ class LegacyCharacterizationSpec extends AnyFunSuite {
     assert(q.contains("[REDACTED]") && !q.contains("12.345678") && q.contains("OUT_OF_RANGE_SOC"))
     val trunc = """{"vin":"SYN-VIN-0001","location":{"lat":12.345678,"lon":-30.5"""
     assert(!LegacyNormalizer.redactPayload(b(trunc)).contains("12.345678"))
+    val nested = """{"vin":"v","lat":10.5,"extra":{"longitude":-29.5,"pts":[{"location":{"lat":1,"lon":2}}]}}"""
+    assert(LegacyNormalizer.redactPayload(b(nested)) ==
+      """{"vin":"v","lat":"[REDACTED]","extra":{"longitude":"[REDACTED]","pts":[{"location":"[REDACTED]"}]}}""")
   }
 
   test("dedupe by event_id and out_of_order flag per VIN") {

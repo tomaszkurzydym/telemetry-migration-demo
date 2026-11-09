@@ -12,7 +12,7 @@ final class LegacyCrypto private (key: Array[Byte], val keyId: String) extends S
   @transient private lazy val rng = new SecureRandom()
 
   private def aad(vin: String, eventId: String): Array[Byte] =
-    s"${LegacyCrypto.AadPrefix}|$vin|$eventId".getBytes(UTF_8)
+    s"${LegacyCrypto.AadPrefix}|${vin.getBytes(UTF_8).length}|$vin|$eventId".getBytes(UTF_8)
 
   /** Returns (ciphertext||tag b64, nonce b64, key_id). Fresh 12-byte nonce per call. */
   def encrypt(vin: String, eventId: String, plaintext: Array[Byte]): (String, String, String) = {
@@ -39,7 +39,7 @@ final class LegacyCrypto private (key: Array[Byte], val keyId: String) extends S
 }
 
 object LegacyCrypto {
-  val AadPrefix = "telemetry.location.v1"
+  val AadPrefix = "telemetry.location.v2"
 
   def fromBase64(keyB64: String, keyId: String): Either[String, LegacyCrypto] = {
     if (keyB64 == null || keyB64.trim.isEmpty) Left("LOCATION_ENC_KEY is not set")

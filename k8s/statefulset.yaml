@@ -1,0 +1,52 @@
+# StatefulSet so each pod gets a stable ordinal -> stable, unique transactional.id
+# (rust-shadow-cg-<ordinal>), which Kafka uses to fence zombie producers after a restart.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: rust-processor
+  namespace: telemetry-demo
+  labels: {app: rust-processor, lifecycle: production-follow-up}
+spec:
+  serviceName: rust-processor
+  replicas: 3
+  podManagementPolicy: Parallel
+  selector:
+    matchLabels: {app: rust-processor}
+  template:
+    metadata:
+      labels: {app: rust-processor}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9100"
+    spec:
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: processor
+          image: registry.example.invalid/telemetry-migration-demo/rust-processor:0.1.0  # placeholder
+          command: ["/bin/sh", "-c", "PROCESSOR_INSTANCE_ID=${HOSTNAME##*-} exec /usr/local/bin/telemetry-processor"]
+          envFrom:
+            - configMapRef: {name: rust-processor-config}
+          env:
+            - name: LOCATION_ENC_KEY
+              valueFrom:
+                secretKeyRef: {name: location-enc-key, key: LOCATION_ENC_KEY}
+          ports:
+            - {name: metrics, containerPort: 9100}
+          readinessProbe:
+            httpGet: {path: /metrics, port: metrics}
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: {path: /metrics, port: metrics}
+            periodSeconds: 20
+            failureThreshold: 3
+          resources:
+            requests: {cpu: 250m, memory: 128Mi}
+            limits: {cpu: "1", memory: 512Mi}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: [ALL]}

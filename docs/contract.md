@@ -41,7 +41,7 @@ partitioner, so all records for one VIN stay in one partition on every topic.
 | `event_id` | yes | string, non-empty | dedupe key (within a VIN) |
 | `ts_ms` | yes | integer (no fraction, no exponent) | 0 ≤ ts_ms ≤ 253402300799999 |
 | `soc_pct` | no | number | 0 ≤ soc_pct ≤ 100 (inclusive) |
-| `pack_voltage_v` | no | number | passed through |
+| `pack_voltage_v` | no | number | passed through (within the decimal range below) |
 | `pack_temp_c` | no | number | −40 ≤ pack_temp_c ≤ 80 (inclusive) |
 | `cell_delta_mv` | no | number | — |
 | `firmware` | no | string | passed through |
@@ -61,6 +61,12 @@ goes to quarantine.
    - a present field with the wrong JSON type → `INVALID_TYPE` (no coercion: `"55"` is not a number).
      `ts_ms` must be an integer literal; `1.7e12` and `1767225600000.0` are `INVALID_TYPE`.
      `location` must be an object whose `lat` and `lon` are both numbers; otherwise → `INVALID_LOCATION`.
+   - **Decimal range.** A number in `soc_pct`, `pack_voltage_v`, `pack_temp_c` or `cell_delta_mv` must be exactly
+     representable as ±m × 10^−s with integer 0 ≤ m ≤ 2^96 − 1 (79228162514264337593543950335) and 0 ≤ s ≤ 28,
+     after dropping trailing fractional zeros; otherwise → `INVALID_TYPE` (for `location.lat`/`lon` →
+     `INVALID_LOCATION`). So `1e30` and `1e-29` are rejected; `79228162514264337593543950335` and
+     `1.500000000000000000000000000000` are accepted. This is a 96-bit decimal range, far outside any valid
+     telemetry value; values are never rounded or clamped into it.
 3. `vin` ≠ Kafka key → `KEY_MISMATCH`.
 4. `ts_ms` outside the range → `INVALID_TS`.
 5. `soc_pct` outside the range → `OUT_OF_RANGE_SOC`.
@@ -101,7 +107,9 @@ pack_voltage_v, pack_temp_k, cell_delta_mv, firmware, out_of_order` plus `locati
   is a label only and contains no key material.
 - Plaintext: UTF-8 JSON object `{"lat":<number>,"lon":<number>}` holding the input decimal values. Byte-level formatting
   may differ between implementations; consumers compare the recovered values numerically.
-- Associated data (AAD): UTF-8 `telemetry.location.v1|<vin>|<event_id>`, which ties a ciphertext to its record.
+- Associated data (AAD): UTF-8 `telemetry.location.v2|<n>|<vin>|<event_id>`, where `<n>` is the decimal UTF-8 byte
+  length of `<vin>`. It ties a ciphertext to its record; the length prefix keeps the encoding unambiguous when an
+  identifier contains `|`.
   A ciphertext copied into another record fails authentication.
 - Wire format:
   ```json
@@ -134,10 +142,12 @@ pack_voltage_v, pack_temp_k, cell_delta_mv, firmware, out_of_order` plus `locati
 
 - Key = the input Kafka key. `vin` and `event_id` are copied when they are present as strings, otherwise `null`.
 - `original_payload` is the original value with the location removed:
-  - parseable object: the top-level `location` value is replaced by the string `"[REDACTED]"` and the object is
-    re-serialized compactly with key order preserved;
+  - parseable object: the value of every `location`, `lat`, `lon`, `latitude` or `longitude` key, at any depth
+    (including inside arrays), is replaced by the string `"[REDACTED]"`, and the object is re-serialized compactly
+    with key order preserved;
   - malformed input: in the raw text, any `"location": …` value (up to the matching `}` or the end of the text)
-    becomes `"location":"[REDACTED]"`, and any remaining `"lat"`/`"lon"` numeric values become `"[REDACTED]"`.
+    becomes `"location":"[REDACTED]"`, and any remaining `"lat"`/`"lon"`/`"latitude"`/`"longitude"` numeric values
+    become `"[REDACTED]"`.
 
 ## 8. Delivery semantics (Rust processor)
 

@@ -1,0 +1,9 @@
+{
+  "file": "run/seed42/legacy.jsonl",
+  "records": 47023,
+  "with_location_enc": 33022,
+  "decrypt_checked": true,
+  "violations": {},
+  "examples": [],
+  "ok": true
+}

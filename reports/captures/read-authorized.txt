@@ -1,0 +1,4 @@
+# decrypt_consumer mode=AUTHORIZED topic=telemetry.battery.normalized.shadow
+SYN-VIN-0134 evt-42-00000013 lat=10.39321 lon=-29.40071 (key_id=local-dev-1, GCM tag verified)
+SYN-VIN-0142 evt-42-00000018 lat=10.19410 lon=-29.43667 (key_id=local-dev-1, GCM tag verified)
+SYN-VIN-0104 evt-42-00000036 lat=10.56179 lon=-29.82214 (key_id=local-dev-1, GCM tag verified)

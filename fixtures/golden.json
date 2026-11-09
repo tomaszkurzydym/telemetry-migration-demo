@@ -76,6 +76,14 @@
       {"key": "SYN-VIN-0015", "input": {"vin": "SYN-VIN-0015", "event_id": "i-1", "ts_ms": 9000, "soc_pct": 101}, "expect": {"quarantine": "OUT_OF_RANGE_SOC"}},
       {"key": "SYN-VIN-0015", "input": {"vin": "SYN-VIN-0015", "event_id": "i-1", "ts_ms": 100},
        "expect": {"emit": {"schema_v": 2, "vin": "SYN-VIN-0015", "event_id": "i-1", "event_time": "1970-01-01T00:00:00.100Z", "soc_pct": null, "pack_voltage_v": null, "pack_temp_k": null, "cell_delta_mv": null, "firmware": null, "out_of_order": false}}}
+    ]},
+    {"name": "decimal_range_limits", "records": [
+      {"key": "SYN-VIN-0016", "input": {"vin": "SYN-VIN-0016", "event_id": "r-1", "ts_ms": 1, "pack_voltage_v": 1e30},
+       "expect": {"quarantine": "INVALID_TYPE"}},
+      {"key": "SYN-VIN-0016", "input": {"vin": "SYN-VIN-0016", "event_id": "r-2", "ts_ms": 2, "cell_delta_mv": 1e-29},
+       "expect": {"quarantine": "INVALID_TYPE"}},
+      {"key": "SYN-VIN-0016", "input": {"vin": "SYN-VIN-0016", "event_id": "r-3", "ts_ms": 3, "pack_voltage_v": 79228162514264337593543950335, "soc_pct": 55.250000000000000000000000000000},
+       "expect": {"emit": {"schema_v": 2, "vin": "SYN-VIN-0016", "event_id": "r-3", "event_time": "1970-01-01T00:00:00.003Z", "soc_pct": 55.3, "pack_voltage_v": 79228162514264337593543950335, "pack_temp_k": null, "cell_delta_mv": null, "firmware": null, "out_of_order": false}}}
     ]}
   ]
 }

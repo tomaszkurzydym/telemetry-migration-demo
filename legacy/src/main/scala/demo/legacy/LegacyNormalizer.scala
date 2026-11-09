@@ -1,7 +1,7 @@
 package demo.legacy
 
 import com.fasterxml.jackson.core.JsonGenerator
-import com.fasterxml.jackson.databind.node.{JsonNodeFactory, ObjectNode, TextNode}
+import com.fasterxml.jackson.databind.node.{ArrayNode, JsonNodeFactory, ObjectNode, TextNode}
 import com.fasterxml.jackson.databind.{DeserializationFeature, JsonNode, ObjectMapper}
 
 import java.math.{BigDecimal => JBigDecimal, RoundingMode}
@@ -56,6 +56,22 @@ object LegacyNormalizer {
   private def strField(o: ObjectNode, k: String): Option[String] =
     Option(o.get(k)).filter(_.isTextual).map(_.asText).filter(_.nonEmpty)
 
+  private val MaxCoefficient = java.math.BigInteger.ONE.shiftLeft(96).subtract(java.math.BigInteger.ONE)
+
+  /** Contract §3 decimal range: ±m × 10^-s with m ≤ 2^96 − 1 and s ≤ 28, after dropping trailing zeros. */
+  def inDecimalRange(d: JBigDecimal): Boolean =
+    d.signum == 0 || {
+      val s = d.stripTrailingZeros
+      if (s.scale > 28) false
+      else if (s.precision.toLong - s.scale > 29) false
+      else s.setScale(math.max(s.scale, 0)).unscaledValue.abs.compareTo(MaxCoefficient) <= 0
+    }
+
+  /** Exact value of a JSON number within the contract decimal range; None if outside it or not representable. */
+  private def decimalOf(n: JsonNode): Option[JBigDecimal] =
+    if (!n.isNumber) None
+    else scala.util.Try(n.decimalValue).toOption.filter(inDecimalRange)
+
   def validate(key: Option[String], value: Array[Byte]): Result = {
     val o = parseObject(value).getOrElse(return Rejected("MALFORMED_JSON", None, None))
     def reject(code: String) = Rejected(code, strField(o, "vin"), strField(o, "event_id"))
@@ -77,7 +93,7 @@ object LegacyNormalizer {
     val nums = Seq("soc_pct", "pack_voltage_v", "pack_temp_c", "cell_delta_mv").map { k =>
       present(o, k) match {
         case None                    => None
-        case Some(n) if n.isNumber  => Some(n.decimalValue)
+        case Some(n) if decimalOf(n).isDefined => decimalOf(n)
         case Some(_)                 => return reject("INVALID_TYPE")
       }
     }
@@ -90,7 +106,8 @@ object LegacyNormalizer {
       case None => None
       case Some(l: ObjectNode) =>
         (Option(l.get("lat")), Option(l.get("lon"))) match {
-          case (Some(a), Some(b)) if a.isNumber && b.isNumber => Some((a.decimalValue, b.decimalValue))
+          case (Some(a), Some(b)) if decimalOf(a).isDefined && decimalOf(b).isDefined =>
+            Some((decimalOf(a).get, decimalOf(b).get))
           case _                                              => return reject("INVALID_LOCATION")
         }
       case Some(_) => return reject("INVALID_LOCATION")
@@ -147,16 +164,27 @@ object LegacyNormalizer {
   }
 
   private val LocationRe = "\"location\"\\s*:\\s*(\\{[^}]*\\}?|\"(?:[^\"\\\\]|\\\\.)*\"?|[^,}\\]]*)".r
-  private val LatLonRe = "\"(lat|lon)\"\\s*:\\s*-?[0-9][0-9.eE+\\-]*".r
+  private val LatLonRe = "\"(lat|lon|latitude|longitude)\"\\s*:\\s*-?[0-9][0-9.eE+\\-]*".r
 
   def redactRawText(s: String): String = {
     val a = LocationRe.replaceAllIn(s, java.util.regex.Matcher.quoteReplacement("\"location\":\"[REDACTED]\""))
     LatLonRe.replaceAllIn(a, m => java.util.regex.Matcher.quoteReplacement("\"" + m.group(1) + "\":\"[REDACTED]\""))
   }
 
+  private val LocationKeys = Set("location", "lat", "lon", "latitude", "longitude")
+
+  private def redactTree(n: JsonNode): Unit = n match {
+    case o: ObjectNode =>
+      o.fieldNames.asScala.toList.foreach { k =>
+        if (LocationKeys(k)) o.set[JsonNode](k, TextNode.valueOf("[REDACTED]")) else redactTree(o.get(k))
+      }
+    case a: ArrayNode => a.elements.asScala.foreach(redactTree)
+    case _ =>
+  }
+
   def redactPayload(value: Array[Byte]): String = parseObject(value) match {
     case Some(o) =>
-      if (o.has("location")) o.set[JsonNode]("location", TextNode.valueOf("[REDACTED]"))
+      redactTree(o)
       mapper.writeValueAsString(o)
     case None => redactRawText(new String(value, StandardCharsets.UTF_8))
   }

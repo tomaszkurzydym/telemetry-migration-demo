@@ -1,0 +1,4 @@
+# decrypt_consumer mode=UNAUTHORIZED (no key) topic=telemetry.battery.normalized.shadow
+SYN-VIN-0134 evt-42-00000013 location_enc.ciphertext=tgL2wwztKZwwGwPjp445NKoXfGArXqUvxn65+2fBBj9XiMBgZcC1CDyDjWKd6DTl nonce=k3IvMnd6gFKXyHKK key_id=local-dev-1
+SYN-VIN-0142 evt-42-00000018 location_enc.ciphertext=OCWt76NXsN4EXNt4IE9rDf937Q7NLQElBNQWc3QQloycvH+ypyZ8xcxPEC3aw01J nonce=roan5tSJflvwTUfJ key_id=local-dev-1
+SYN-VIN-0104 evt-42-00000036 location_enc.ciphertext=1wyMkIb0VEXjZfQVcFQ2aCc3pQC3pIIwB5g42XekmivHCvsggnsG7QKFYJAByWrR nonce=mTmbApkoa4pCCw1y key_id=local-dev-1
