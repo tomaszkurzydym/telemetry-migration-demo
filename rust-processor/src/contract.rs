@@ -95,7 +95,7 @@ pub fn decimal_of(n: &Number) -> Option<Decimal> {
         scale -= 1;
     }
     if scale < 0 {
-        if digits.len() as i64 - scale > 29 {
+        if (digits.len() as i64).saturating_sub(scale) > 29 {
             return None;
         }
         digits.push_str(&"0".repeat(-scale as usize));
@@ -566,6 +566,8 @@ mod tests {
         );
         assert_eq!(d("0e-99999").as_deref(), Some("0"));
         assert_eq!(d("1e99999999999999999999"), None);
+        assert_eq!(d("1e9223372036854775807"), None);
+        assert_eq!(d("1e-9223372036854775808"), None);
         assert_eq!(
             code(validate(Some(K), &with("pack_voltage_v", "1e30"))),
             Some("INVALID_TYPE")

@@ -63,9 +63,14 @@ object LegacyNormalizer {
     d.signum == 0 || {
       val s = d.stripTrailingZeros
       if (s.scale > 28) false
-      else if (s.precision - s.scale > 29) false
+      else if (s.precision.toLong - s.scale > 29) false
       else s.setScale(math.max(s.scale, 0)).unscaledValue.abs.compareTo(MaxCoefficient) <= 0
     }
+
+  /** Exact value of a JSON number within the contract decimal range; None if outside it or not representable. */
+  private def decimalOf(n: JsonNode): Option[JBigDecimal] =
+    if (!n.isNumber) None
+    else scala.util.Try(n.decimalValue).toOption.filter(inDecimalRange)
 
   def validate(key: Option[String], value: Array[Byte]): Result = {
     val o = parseObject(value).getOrElse(return Rejected("MALFORMED_JSON", None, None))
@@ -88,7 +93,7 @@ object LegacyNormalizer {
     val nums = Seq("soc_pct", "pack_voltage_v", "pack_temp_c", "cell_delta_mv").map { k =>
       present(o, k) match {
         case None                    => None
-        case Some(n) if n.isNumber && inDecimalRange(n.decimalValue) => Some(n.decimalValue)
+        case Some(n) if decimalOf(n).isDefined => decimalOf(n)
         case Some(_)                 => return reject("INVALID_TYPE")
       }
     }
@@ -101,9 +106,8 @@ object LegacyNormalizer {
       case None => None
       case Some(l: ObjectNode) =>
         (Option(l.get("lat")), Option(l.get("lon"))) match {
-          case (Some(a), Some(b))
-              if a.isNumber && b.isNumber && inDecimalRange(a.decimalValue) && inDecimalRange(b.decimalValue) =>
-            Some((a.decimalValue, b.decimalValue))
+          case (Some(a), Some(b)) if decimalOf(a).isDefined && decimalOf(b).isDefined =>
+            Some((decimalOf(a).get, decimalOf(b).get))
           case _                                              => return reject("INVALID_LOCATION")
         }
       case Some(_) => return reject("INVALID_LOCATION")
