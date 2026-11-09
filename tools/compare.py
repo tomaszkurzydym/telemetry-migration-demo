@@ -199,6 +199,8 @@ def main() -> int:
                    + report["duplicates"]["rust"]["count"] + q_report["missing_in_rust"] + q_report["extra_in_rust"]
                    + q_report["error_code_mismatch"] + crypto["legacy_auth_failed"] + crypto["rust_auth_failed"]
                    + crypto["key_id_mismatch"] + crypto["repeated_nonces"] + crypto["nonce_reused_across_sides"])
+    empty = [k for k in ("raw", "legacy", "rust") if not data[k]]
+    ok = unexplained == 0 and not empty
     report.update({
         "joined": len(set(L) & set(R)),
         "missing_in_rust": {"count": len(missing), "examples": [list(k) for k in missing[:MAX_EXAMPLES]]},
@@ -210,14 +212,15 @@ def main() -> int:
         "ordering_violations": ordering,
         "quarantine": q_report,
         "unexplained_total": unexplained,
-        "verdict": "PASS" if unexplained == 0 else "FAIL",
+        "empty_inputs": empty,
+        "verdict": "PASS" if ok else "FAIL",
     })
     Path(a.out_dir).mkdir(exist_ok=True)
     out = Path(a.out_dir) / f"diff-{a.run}.json"
     out.write_text(json.dumps(report, indent=2, default=str) + "\n")
     print(json.dumps({k: report[k] for k in ("run", "counts", "joined", "unexplained_total", "verdict")}, default=str))
     print(f"DEFECT-1 diffs: {defect1}; location pairs plaintext-equal: {crypto['plaintext_equal']}/{crypto['pairs']}; report: {out}")
-    return 0 if unexplained == 0 else 1
+    return 0 if ok else 1
 
 
 if __name__ == "__main__":
