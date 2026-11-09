@@ -23,13 +23,14 @@
 [info] - soc_pct half-up to 1dp, temp to Kelvin 2dp, ISO event_time, schema_v 2
 [info] - boundary values accepted, just-outside rejected
 [info] - required fields, types, malformed JSON, key mismatch
+[info] - numbers outside the contract decimal range are INVALID_TYPE, including extreme exponents
 [info] - location encrypted with AAD binding, random nonce, tamper rejected
 [info] - missing key hard-fails
 [info] - quarantine redacts location, including malformed payloads
 [info] - dedupe by event_id and out_of_order flag per VIN
-[info] Run completed in 725 milliseconds.
-[info] Total number of tests run: 23
+[info] Run completed in 782 milliseconds.
+[info] Total number of tests run: 24
 [info] Suites: completed 2, aborted 0
-[info] Tests: succeeded 23, failed 0, canceled 0, ignored 0, pending 0
+[info] Tests: succeeded 24, failed 0, canceled 0, ignored 0, pending 0
 [info] All tests passed.
-[success] Total time: 2 s, completed Nov 9, 2026, 12:58:06 PM
+[success] Total time: 2 s, completed Nov 9, 2026, 1:19:45 PM

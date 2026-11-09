@@ -4,8 +4,8 @@
 > `reports/` produced by a committed command. Raw topic dumps (`*.jsonl`) are regenerable and gitignored.
 
 ## Provenance
-- **Code version:** all results were produced by commit **`53aad3a`** (`reports/evidence-run.txt`, `code_version`
-  fields in each report). The run started from a clean tree. Reports written later in the run carry `53aad3a-dirty`
+- **Code version:** all results were produced by commit **`602a983`** (`reports/evidence-run.txt`, `code_version`
+  fields in each report). The run started from a clean tree. Reports written later in the run carry `602a983-dirty`
   only because the run itself rewrites the tracked files under `reports/`; no file outside `reports/` changed during
   the run. The commit after it adds only `docs/` and `reports/`.
 - **Command:** `scripts/evidence.sh --full` (needs Kafka from `docker compose up -d kafka` and a `.env` with a fresh
@@ -20,7 +20,7 @@
 test result: ok. 41 passed; 0 failed   (lib: contract, crypto, pipeline, redact)
 test result: ok. 1 passed; 0 failed    (tests/golden.rs — all fixtures/golden.json cases)
 (cd legacy && sbt -batch test)
-Tests: succeeded 23, failed 0          (LegacyCharacterizationSpec 8 incl. "DEFECT-1: cell_delta_mv is truncated"; GoldenFixtureSpec 15)
+Tests: succeeded 24, failed 0          (LegacyCharacterizationSpec 9 incl. "DEFECT-1: cell_delta_mv is truncated"; GoldenFixtureSpec 15)
 ```
 The crypto tests cover: round-trip, a fresh nonce per call, tampered ciphertext, tag, and nonce rejected, wrong key,
 wrong `key_id`, AAD bound to (vin, event_id), and bad key length or encoding. The golden fixtures (`fixtures/golden.json`)
@@ -85,7 +85,7 @@ the shadow path (shadow topics, state topic, `rust-shadow-cg` offsets), runs the
 | kill9 | SIGKILL after 75,000 commits, restart on the same `transactional.id`, SIGKILL again after 75,426 more, restart and drain | 282,067 / 282,067 | 0 | 0 | 0 | 12,044 / 12,044 |
 | rebalance | 1 instance → add a 2nd (rebalance) → SIGKILL the 2nd after 30,000 (partitions return after session timeout) → add a 3rd → drain | 282,067 / 282,067 | 0 | 0 | 0 | 12,044 / 12,044 |
 
-Aborted or zombie writes really happened: `read_uncommitted` sees 870 (kill9) and 703 (rebalance) extra records.
+Aborted or zombie writes really happened: `read_uncommitted` sees 936 (kill9) and 464 (rebalance) extra records.
 `read_committed` consumers never see them. The faulted logs show the state topic being restored on each assignment
 (for example `state restored partitions=[0, 1, 2] records=4853 vins=95 in 531ms`).
 **Boundary:** this shows no lost and no duplicate *committed* effects inside Kafka→Kafka (input offsets + outputs +
@@ -98,9 +98,9 @@ running). Processor settings: 1 instance, `BATCH_MAX=500`, `BATCH_MAX_MS=100`, o
 
 | Run | Backlog ev/s | Backlog max lag | Paced ev/s | Paced p50 / p95 / p99 ms | Paced max lag |
 |---|---|---|---|---|---|
-| 1 | 4,063.7 | 198,500 | 1,988.3 | 210 / 302 / 311 | 612 |
-| 2 | 4,088.8 | 199,000 | 1,992.1 | 212 / 304 / 318 | 671 |
-| 3 | 4,005.0 | 199,000 | 1,992.0 | 212 / 304 / 316 | 618 |
+| 1 | 3,938.2 | 199,000 | 1,986.0 | 211 / 303 / 326 | 613 |
+| 2 | 4,013.7 | 199,000 | 1,992.0 | 211 / 305 / 337 | 758 |
+| 3 | 4,034.9 | 199,000 | 1,992.2 | 209 / 301 / 310 | 617 |
 
 How to read these numbers:
 - The backlog-phase latency (p50 about 25 s) is mostly time spent waiting in the queue, so it is not reported as

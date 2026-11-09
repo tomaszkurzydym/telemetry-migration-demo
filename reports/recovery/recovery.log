@@ -1,34 +1,34 @@
-[12:59:52.415] code_version=53aad3a-dirty events=300000 seed=7
-[12:59:52.417] == kill9: reset topics, generate seed=7 events=300000
-{"seed": 7, "events": 300000, "vins": 200, "kinds": {"valid": 273509, "invalid": 8983, "malformed": 3061, "out_of_order": 8558, "duplicate": 5889}, "delivery_failures": 0, "elapsed_s": 0.57}
-[13:00:17.768] kill9: clean baseline run
-[13:01:44.820] baseline exit=0
+[13:21:28.375] code_version=602a983-dirty events=300000 seed=7
+[13:21:28.377] == kill9: reset topics, generate seed=7 events=300000
+{"seed": 7, "events": 300000, "vins": 200, "kinds": {"valid": 273509, "invalid": 8983, "malformed": 3061, "out_of_order": 8558, "duplicate": 5889}, "delivery_failures": 0, "elapsed_s": 0.616}
+[13:21:52.740] kill9: clean baseline run
+[13:23:14.701] baseline exit=0
 telemetry.battery.normalized.shadow (read_committed): 282067 records -> reports/recovery/kill9/baseline/rust.jsonl
 telemetry.battery.quarantine.shadow (read_committed): 12044 records -> reports/recovery/kill9/baseline/rust_q.jsonl
-[13:02:01.638] kill9: shadow path reset (output, quarantine, state topics + rust-shadow-cg offsets)
-[13:02:01.640] kill9: started instance 0 pid=1414160
-[13:02:19.828] kill9: committed=75000; SIGKILL pid=1414160
-[13:02:19.835] kill9: restarted instance 0 (same transactional.id) pid=1416757
-[13:02:48.489] kill9: committed since restart=75000; SIGKILL pid=1416757
-[13:02:48.497] kill9: restarted instance 0 pid=1420556; draining
-[13:03:46.456] kill9: drained exit=0
+[13:23:31.384] kill9: shadow path reset (output, quarantine, state topics + rust-shadow-cg offsets)
+[13:23:31.386] kill9: started instance 0 pid=1600772
+[13:23:49.121] kill9: committed=75000; SIGKILL pid=1600772
+[13:23:49.128] kill9: restarted instance 0 (same transactional.id) pid=1603376
+[13:24:18.001] kill9: committed since restart=75000; SIGKILL pid=1603376
+[13:24:18.007] kill9: restarted instance 0 pid=1607640; draining
+[13:25:12.728] kill9: drained exit=0
 telemetry.battery.normalized.shadow (read_committed): 282067 records -> reports/recovery/kill9/faulted/rust.jsonl
 telemetry.battery.quarantine.shadow (read_committed): 12044 records -> reports/recovery/kill9/faulted/rust_q.jsonl
-telemetry.battery.normalized.shadow (read_uncommitted): 282937 records -> reports/recovery/kill9/faulted/rust_uncommitted.jsonl
-{"scenario": "kill9", "baseline_records": 282067, "faulted_committed_records": 282067, "faulted_read_uncommitted_records": 282937, "aborted_or_uncommitted_records_visible_to_read_uncommitted": 870, "lost_outputs": 0, "lost_examples": [], "extra_outputs": 0, "duplicate_committed_outputs": 0, "baseline_duplicates": 0, "field_differences_vs_baseline": {}, "quarantine": {"baseline": 12044, "faulted": 12044, "lost": 0, "extra": 0, "duplicates": 0}, "verdict": "PASS"}
-[13:04:17.294] == rebalance: reset topics, generate seed=7 events=300000
-{"seed": 7, "events": 300000, "vins": 200, "kinds": {"valid": 273509, "invalid": 8983, "malformed": 3061, "out_of_order": 8558, "duplicate": 5889}, "delivery_failures": 0, "elapsed_s": 0.663}
-[13:04:43.158] rebalance: clean baseline run
-[13:06:05.797] baseline exit=0
+telemetry.battery.normalized.shadow (read_uncommitted): 283003 records -> reports/recovery/kill9/faulted/rust_uncommitted.jsonl
+{"scenario": "kill9", "baseline_records": 282067, "faulted_committed_records": 282067, "faulted_read_uncommitted_records": 283003, "aborted_or_uncommitted_records_visible_to_read_uncommitted": 936, "lost_outputs": 0, "lost_examples": [], "extra_outputs": 0, "duplicate_committed_outputs": 0, "baseline_duplicates": 0, "field_differences_vs_baseline": {}, "quarantine": {"baseline": 12044, "faulted": 12044, "lost": 0, "extra": 0, "duplicates": 0}, "verdict": "PASS"}
+[13:25:43.743] == rebalance: reset topics, generate seed=7 events=300000
+{"seed": 7, "events": 300000, "vins": 200, "kinds": {"valid": 273509, "invalid": 8983, "malformed": 3061, "out_of_order": 8558, "duplicate": 5889}, "delivery_failures": 0, "elapsed_s": 0.638}
+[13:26:08.526] rebalance: clean baseline run
+[13:27:29.745] baseline exit=0
 telemetry.battery.normalized.shadow (read_committed): 282067 records -> reports/recovery/rebalance/baseline/rust.jsonl
 telemetry.battery.quarantine.shadow (read_committed): 12044 records -> reports/recovery/rebalance/baseline/rust_q.jsonl
-[13:06:26.503] rebalance: shadow path reset (output, quarantine, state topics + rust-shadow-cg offsets)
-[13:06:26.506] rebalance: started instance 0 pid=1446642
-[13:06:38.416] rebalance: scale-up, started instance 1 pid=1448378
-[13:06:46.770] rebalance: instance 1 committed=30000; SIGKILL pid=1448378 (partitions return after session timeout)
-[13:06:48.778] rebalance: started instance 2 pid=1449877
-[13:07:39.123] rebalance: all instances drained
+[13:27:46.388] rebalance: shadow path reset (output, quarantine, state topics + rust-shadow-cg offsets)
+[13:27:46.391] rebalance: started instance 0 pid=1633284
+[13:27:57.931] rebalance: scale-up, started instance 1 pid=1634984
+[13:28:06.295] rebalance: instance 1 committed=30000; SIGKILL pid=1634984 (partitions return after session timeout)
+[13:28:08.303] rebalance: started instance 2 pid=1636073
+[13:28:50.518] rebalance: all instances drained
 telemetry.battery.normalized.shadow (read_committed): 282067 records -> reports/recovery/rebalance/faulted/rust.jsonl
 telemetry.battery.quarantine.shadow (read_committed): 12044 records -> reports/recovery/rebalance/faulted/rust_q.jsonl
-telemetry.battery.normalized.shadow (read_uncommitted): 282770 records -> reports/recovery/rebalance/faulted/rust_uncommitted.jsonl
-{"scenario": "rebalance", "baseline_records": 282067, "faulted_committed_records": 282067, "faulted_read_uncommitted_records": 282770, "aborted_or_uncommitted_records_visible_to_read_uncommitted": 703, "lost_outputs": 0, "lost_examples": [], "extra_outputs": 0, "duplicate_committed_outputs": 0, "baseline_duplicates": 0, "field_differences_vs_baseline": {}, "quarantine": {"baseline": 12044, "faulted": 12044, "lost": 0, "extra": 0, "duplicates": 0}, "verdict": "PASS"}
+telemetry.battery.normalized.shadow (read_uncommitted): 282531 records -> reports/recovery/rebalance/faulted/rust_uncommitted.jsonl
+{"scenario": "rebalance", "baseline_records": 282067, "faulted_committed_records": 282067, "faulted_read_uncommitted_records": 282531, "aborted_or_uncommitted_records_visible_to_read_uncommitted": 464, "lost_outputs": 0, "lost_examples": [], "extra_outputs": 0, "duplicate_committed_outputs": 0, "baseline_duplicates": 0, "field_differences_vs_baseline": {}, "quarantine": {"baseline": 12044, "faulted": 12044, "lost": 0, "extra": 0, "duplicates": 0}, "verdict": "PASS"}

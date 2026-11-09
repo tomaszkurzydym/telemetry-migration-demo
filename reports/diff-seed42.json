@@ -1,6 +1,6 @@
 {
   "run": "seed42",
-  "code_version": "53aad3a-dirty",
+  "code_version": "602a983-dirty",
   "topics": {
     "raw": "telemetry.battery.raw",
     "legacy": "telemetry.battery.normalized",

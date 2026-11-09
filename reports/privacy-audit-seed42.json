@@ -1,6 +1,6 @@
 {
   "run_dir": "run/seed42",
-  "code_version": "53aad3a-dirty",
+  "code_version": "602a983-dirty",
   "patterns": ["(lat|lon|latitude|longitude) key with numeric value", "location key with object value"],
   "files": [{"file":"run/seed42/legacy.jsonl","lines_scanned":47023,"hits":0},{"file":"run/seed42/rust.jsonl","lines_scanned":47023,"hits":0},{"file":"run/seed42/legacy_q.jsonl","lines_scanned":1956,"hits":0},{"file":"run/seed42/rust_q.jsonl","lines_scanned":1956,"hits":0},{"file":"run/seed42/legacy.log","lines_scanned":2022,"hits":0},{"file":"run/seed42/rust.log","lines_scanned":1959,"hits":0},{"file":"fixtures/README.md","lines_scanned":18,"hits":0},{"file":"fixtures/golden.json","lines_scanned":89,"hits":0}],
   "plaintext_hits_total": 0,

@@ -1,47 +1,47 @@
-    Finished `release` profile [optimized] target(s) in 0.07s
-    Finished `release` profile [optimized] target(s) in 0.06s
+    Finished `release` profile [optimized] target(s) in 0.09s
+    Finished `release` profile [optimized] target(s) in 0.08s
      Running unittests src/lib.rs (target/release/deps/telemetry_processor-117431be6716a785)
 
 running 41 tests
 test contract::tests::half_up_rounding_on_exact_decimals ... ok
-test contract::tests::decimal_range_limits ... ok
 test contract::tests::key_mismatch_and_precedence ... ok
-test contract::tests::malformed_json ... ok
+test contract::tests::decimal_range_limits ... ok
 test contract::tests::event_time_format ... ok
-test contract::tests::normalize_shape ... ok
+test contract::tests::malformed_json ... ok
+test contract::tests::location_rules ... ok
+test contract::tests::rejection_carries_ids_when_strings ... ok
 test contract::tests::ts_range ... ok
 test contract::tests::soc_boundaries_inclusive ... ok
 test contract::tests::temp_boundaries_inclusive ... ok
 test contract::tests::type_checks_no_coercion ... ok
-test contract::tests::rejection_carries_ids_when_strings ... ok
-test contract::tests::location_rules ... ok
-test contract::tests::required_fields ... ok
 test crypto::tests::aad_unambiguous_when_ids_contain_separator ... ok
-test crypto::tests::ciphertext_bound_to_record_via_aad ... ok
 test crypto::tests::debug_output_never_contains_key_material ... ok
+test contract::tests::required_fields ... ok
+test crypto::tests::ciphertext_bound_to_record_via_aad ... ok
 test crypto::tests::key_id_mismatch_is_rejected ... ok
+test crypto::tests::key_parsing_hard_fails ... ok
 test crypto::tests::round_trip_recovers_exact_decimals ... ok
 test crypto::tests::tampered_ciphertext_is_rejected ... ok
 test crypto::tests::tampered_nonce_is_rejected ... ok
 test crypto::tests::truncated_ciphertext_and_bad_nonce_length_are_rejected ... ok
 test crypto::tests::wire_format_lengths ... ok
-test crypto::tests::key_parsing_hard_fails ... ok
 test crypto::tests::wrong_key_is_rejected ... ok
 test pipeline::tests::abort_discards_uncommitted_state ... ok
 test pipeline::tests::dedupe_and_out_of_order ... ok
 test pipeline::tests::emitted_record_contains_no_plaintext_location ... ok
 test pipeline::tests::first_event_at_ts_zero_is_in_order ... ok
+test pipeline::tests::restored_state_is_used ... ok
 test pipeline::tests::invalid_records_do_not_touch_state ... ok
 test pipeline::tests::quarantine_record_shape_and_no_plaintext ... ok
-test pipeline::tests::restored_state_is_used ... ok
 test redact::tests::invalid_location_values_are_still_redacted ... ok
 test redact::tests::nested_and_stray_coordinates_redacted_in_parsed_objects ... ok
 test redact::tests::parseable_object_location_replaced_order_kept ... ok
 test redact::tests::parseable_object_without_location_unchanged ... ok
 test redact::tests::sanitize ... ok
-test redact::tests::truncated_payload_redacted ... ok
 test redact::tests::stray_lat_lon_redacted ... ok
+test redact::tests::truncated_payload_redacted ... ok
 test redact::tests::nan_and_array_payloads_redacted ... ok
+test contract::tests::normalize_shape ... ok
 test crypto::tests::nonce_is_fresh_per_event_and_ciphertexts_differ ... ok
 test pipeline::tests::dedupe_window_is_bounded ... ok
 
