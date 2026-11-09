@@ -15,7 +15,7 @@ PATTERNS=(
   '\\?"location\\?"[[:space:]]*:[[:space:]]*\{'
 )
 targets=()
-for f in "$RUN"/legacy.jsonl "$RUN"/rust.jsonl "$RUN"/legacy_q.jsonl "$RUN"/rust_q.jsonl "$RUN"/*.log fixtures/*; do
+for f in "$RUN"/legacy.jsonl "$RUN"/rust.jsonl "$RUN"/legacy_q.jsonl "$RUN"/rust_q.jsonl "$RUN"/*.log $(find fixtures -type f | sort); do
   [ -e "$f" ] && targets+=("$f")
 done
 [ -d logs ] && while IFS= read -r f; do targets+=("$f"); done < <(find logs -type f)
