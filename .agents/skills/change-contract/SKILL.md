@@ -34,7 +34,7 @@ a human before implementing.
 scripts/evidence.sh            # diff must still be PASS with only DEFECT-1 differences
 ```
 
-Then use the `regenerate-evidence` skill (`--full` if crypto, state or delivery changed).
+Then use the `regenerate-evidence` skill with `scripts/evidence.sh --full` (required for every behaviour change, per AGENTS.md).
 
 ## Pitfalls
 
