@@ -21,7 +21,7 @@ Check, and stop to investigate if any fails:
 - `reports/tests/*.txt`: all Rust and Scala tests pass.
 - `reports/captures/startup-without-key.txt`: both exit before Kafka (Rust exit 78).
 - `reports/diff-seed42.json`: `verdict: PASS`, `unexplained_total: 0`, only `DEFECT-1` differences, 0 repeated nonces.
-- `reports/verify-*-seed42.json`: PASS for both sides.
+- `reports/verify-{rust,legacy}-seed42.json`: `"ok": true`, empty `violations`.
 - `reports/privacy-audit-seed42.json`: `plaintext_hits_total: 0` **and** positive control > 0.
 - `reports/recovery/{kill9,rebalance}.json`: PASS, 0 lost / extra / duplicate.
 - `reports/bench.json`: 3 measured runs + warm-up, environment recorded.
