@@ -20,6 +20,10 @@ for f in "$RUN"/legacy.jsonl "$RUN"/rust.jsonl "$RUN"/legacy_q.jsonl "$RUN"/rust
 done
 [ -d logs ] && while IFS= read -r f; do targets+=("$f"); done < <(find logs -type f)
 
+missing_dumps=()
+for n in raw legacy rust; do [ -s "$RUN/$n.jsonl" ] || missing_dumps+=("\"$n\""); done
+missing_json=$(IFS=,; echo "${missing_dumps[*]}")
+
 total=0
 files_json=""
 for f in "${targets[@]}"; do
@@ -70,7 +74,7 @@ PY
 )
 missing=$(echo "$presence" | .venv/bin/python -c 'import json,sys; d=json.load(sys.stdin); print(sum(v["missing_location_enc"]+v["unexpected_location_enc"] for v in d.values()))')
 verdict=PASS
-{ [ "$total" -ne 0 ] || [ "$missing" -ne 0 ] || [ "$control" -eq 0 ]; } && verdict=FAIL
+{ [ "$total" -ne 0 ] || [ "$missing" -ne 0 ] || [ "$control" -eq 0 ] || [ ${#missing_dumps[@]} -ne 0 ]; } && verdict=FAIL
 cat > "$REPORT" <<JSON
 {
   "run_dir": "$RUN",
@@ -80,6 +84,7 @@ cat > "$REPORT" <<JSON
   "plaintext_hits_total": $total,
   "positive_control_raw_input_hits": $control,
   "location_enc_presence": $presence,
+  "missing_or_empty_dumps": [$missing_json],
   "verdict": "$verdict"
 }
 JSON
