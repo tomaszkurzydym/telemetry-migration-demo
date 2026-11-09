@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rust-processor-config
+  namespace: telemetry-demo
+  labels: {app: rust-processor, lifecycle: production-follow-up}
+data:
+  KAFKA_BOOTSTRAP: "kafka-bootstrap.kafka.svc:9092"  # placeholder
+  INPUT_TOPIC: telemetry.battery.raw
+  OUTPUT_TOPIC: telemetry.battery.normalized.shadow
+  QUARANTINE_TOPIC: telemetry.battery.quarantine.shadow
+  STATE_TOPIC: telemetry.battery.rust-shadow.state
+  CONSUMER_GROUP: rust-shadow-cg
+  LOCATION_ENC_KEY_ID: local-dev-1
+  METRICS_ADDR: "0.0.0.0:9100"
+  RUST_LOG: info

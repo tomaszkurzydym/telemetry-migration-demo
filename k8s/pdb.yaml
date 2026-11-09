@@ -1,0 +1,10 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: rust-processor
+  namespace: telemetry-demo
+  labels: {app: rust-processor, lifecycle: production-follow-up}
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels: {app: rust-processor}
