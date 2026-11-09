@@ -14,7 +14,7 @@ description: Re-run the full evidence pack (tests, shadow diff, privacy audit, r
 ## Run
 
 ```bash
-scripts/evidence.sh --full 2>&1 | tee /tmp/evidence.log    # ~25 min
+set -o pipefail; scripts/evidence.sh --full 2>&1 | tee /tmp/evidence.log; echo "exit=$?"   # ~25 min; must print exit=0
 ```
 
 Check, and stop to investigate if any fails:
