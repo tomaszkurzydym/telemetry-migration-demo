@@ -20,8 +20,8 @@ echo "== unit tests"
 grep -E "test result" "$R/tests/rust.txt"; grep -E "Tests:" "$R/tests/legacy.txt"
 
 echo "== startup hard-fail without LOCATION_ENC_KEY"
-{ (env -u LOCATION_ENC_KEY rust-processor/target/release/telemetry-processor; echo "rust exit=$?") 2>&1 || true
-  (cd legacy && env -u LOCATION_ENC_KEY "$SBT" -batch "runMain demo.legacy.LegacyJob" 2>&1 | grep -E "FATAL|Nonzero exit|exit code" ; true); } > "$R/captures/startup-without-key.txt"
+{ (set +e; env -u LOCATION_ENC_KEY rust-processor/target/release/telemetry-processor; echo "rust exit=$?") 2>&1
+  (set +e; cd legacy && env -u LOCATION_ENC_KEY "$SBT" -batch "runMain demo.legacy.LegacyJob" 2>&1 | grep -E "FATAL|Nonzero exit"; echo "legacy sbt exit=${PIPESTATUS[0]}"); } > "$R/captures/startup-without-key.txt"
 cat "$R/captures/startup-without-key.txt"
 
 echo "== seeded shadow run"
