@@ -1,0 +1,30 @@
+$ kubectl version
+  Client Version: v1.31.4
+  Kustomize Version: v5.4.2
+  Server Version: v1.31.0
+$ kubectl apply --dry-run=client -f k8s/
+configmap/rust-processor-config created (dry run)
+namespace/telemetry-demo created (dry run)
+networkpolicy.networking.k8s.io/rust-processor created (dry run)
+poddisruptionbudget.policy/rust-processor created (dry run)
+secret/location-enc-key created (dry run)
+service/rust-processor created (dry run)
+statefulset.apps/rust-processor created (dry run)
+$ kubectl apply --dry-run=server -f k8s/namespace.yaml
+namespace/telemetry-demo created (server dry run)
+# server dry-run of namespaced objects needs the namespace to exist; it is created via dry-run only, so
+# namespaced objects are server-validated with the namespace overridden to 'default':
+$ kubectl apply --dry-run=server -f k8s/configmap.yaml (namespace=default)
+configmap/rust-processor-config created (server dry run)
+$ kubectl apply --dry-run=server -f k8s/secret.example.yaml (namespace=default)
+secret/location-enc-key created (server dry run)
+$ kubectl apply --dry-run=server -f k8s/statefulset.yaml (namespace=default)
+statefulset.apps/rust-processor created (server dry run)
+$ kubectl apply --dry-run=server -f k8s/service.yaml (namespace=default)
+service/rust-processor created (server dry run)
+$ kubectl apply --dry-run=server -f k8s/pdb.yaml (namespace=default)
+poddisruptionbudget.policy/rust-processor created (server dry run)
+$ kubectl apply --dry-run=server -f k8s/networkpolicy.yaml (namespace=default)
+networkpolicy.networking.k8s.io/rust-processor created (server dry run)
+$ kubectl get statefulsets,pods -A -l app=rust-processor   # proves nothing was created
+No resources found

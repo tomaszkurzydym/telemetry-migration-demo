@@ -1,0 +1,25 @@
+{
+  "instance": "0",
+  "totals": {
+    "consumed": 200000,
+    "deduplicated": 4069,
+    "location_encrypted": 131697,
+    "normalized": 187990,
+    "out_of_order": 5671,
+    "quarantined": 7941,
+    "txn_committed": 400
+  },
+  "first_msg_unix_ms": 1794218488373,
+  "last_commit_unix_ms": 1794218537331,
+  "processing_window_ms": 48958,
+  "throughput_events_per_s": 4085.1341966583605,
+  "e2e_latency_ms": {
+    "samples": 200000,
+    "p50": 24517,
+    "p95": 47160,
+    "p99": 49263,
+    "max": 49770
+  },
+  "batch_max": 500,
+  "batch_max_ms": 100
+}

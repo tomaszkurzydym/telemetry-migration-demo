@@ -1,0 +1,89 @@
+{
+  "run": "seed42",
+  "code_version": "738d08a",
+  "topics": {
+    "raw": "telemetry.battery.raw",
+    "legacy": "telemetry.battery.normalized",
+    "rust": "telemetry.battery.normalized.shadow",
+    "legacy_q": "telemetry.battery.quarantine",
+    "rust_q": "telemetry.battery.quarantine.shadow"
+  },
+  "processor_groups": {
+    "legacy": "legacy-cg",
+    "rust": "rust-shadow-cg"
+  },
+  "counts": {
+    "raw": 50000,
+    "legacy": 47023,
+    "rust": 47023,
+    "legacy_q": 1956,
+    "rust_q": 1956
+  },
+  "duplicates": {
+    "legacy": {
+      "count": 0,
+      "examples": []
+    },
+    "rust": {
+      "count": 0,
+      "examples": []
+    }
+  },
+  "joined": 47023,
+  "missing_in_rust": {
+    "count": 0,
+    "examples": []
+  },
+  "extra_in_rust": {
+    "count": 0,
+    "examples": []
+  },
+  "field_mismatches": {
+    "unexplained_by_field": {},
+    "examples": []
+  },
+  "intentional_documented_diffs": {
+    "DEFECT-1": {
+      "field": "cell_delta_mv",
+      "count": 23587,
+      "explanation": "legacy truncates, contract/Rust round half-up (docs/contract.md \u00a74)"
+    }
+  },
+  "location_crypto": {
+    "pairs": 33022,
+    "legacy_roundtrip_ok": 33022,
+    "rust_roundtrip_ok": 33022,
+    "plaintext_equal": 33022,
+    "distinct_nonces": 66044,
+    "repeated_nonces": 0
+  },
+  "ordering_violations": {
+    "legacy": {
+      "violations": 0,
+      "examples": []
+    },
+    "rust": {
+      "violations": 0,
+      "examples": []
+    }
+  },
+  "quarantine": {
+    "legacy": 1956,
+    "rust": 1956,
+    "missing_in_rust": 0,
+    "extra_in_rust": 0,
+    "error_code_mismatch": 0,
+    "by_error_code_rust": {
+      "MALFORMED_JSON": 483,
+      "INVALID_TYPE": 204,
+      "OUT_OF_RANGE_TEMP": 204,
+      "KEY_MISMATCH": 212,
+      "OUT_OF_RANGE_SOC": 215,
+      "MISSING_REQUIRED_FIELD": 204,
+      "INVALID_TS": 203,
+      "INVALID_LOCATION": 231
+    }
+  },
+  "unexplained_total": 0,
+  "verdict": "PASS"
+}

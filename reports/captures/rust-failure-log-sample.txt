@@ -1,0 +1,3 @@
+[2026-11-09T09:46:40.175Z WARN  telemetry_processor] quarantined event_id=evt-42-00000021 error_code=OUT_OF_RANGE_TEMP
+[2026-11-09T09:46:40.175Z WARN  telemetry_processor] quarantined event_id=evt-42-00000197 error_code=INVALID_TYPE
+[2026-11-09T09:46:40.175Z WARN  telemetry_processor] quarantined event_id=evt-42-00000394 error_code=INVALID_TYPE

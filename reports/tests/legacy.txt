@@ -1,0 +1,34 @@
+[info] welcome to sbt 1.10.7 (Ubuntu Java 17.0.20.1)
+[info] loading project definition from /home/ubuntu/work/telemetry-migration-demo/legacy/project
+[info] loading settings for project root from build.sbt...
+[info] set current project to legacy-battery-normalizer (in build file:/home/ubuntu/work/telemetry-migration-demo/legacy/)
+[info] LegacyCharacterizationSpec:
+[info] - DEFECT-1: cell_delta_mv is truncated, not rounded
+[info] - soc_pct half-up to 1dp, temp to Kelvin 2dp, ISO event_time, schema_v 2
+[info] - boundary values accepted, just-outside rejected
+[info] - required fields, types, malformed JSON, key mismatch
+[info] - location encrypted with AAD binding, random nonce, tamper rejected
+[info] - missing key hard-fails
+[info] - quarantine redacts location, including malformed payloads
+[info] - dedupe by event_id and out_of_order flag per VIN
+[info] GoldenFixtureSpec:
+[info] - golden: half_up_rounding_and_kelvin
+[info] - golden: round_down_side
+[info] - golden: negative_cell_delta_half_away_from_zero
+[info] - golden: inclusive_lower_bounds_and_epoch
+[info] - golden: inclusive_upper_bounds
+[info] - golden: only_required_fields
+[info] - golden: location_encrypted
+[info] - golden: null_location_omitted
+[info] - golden: range_rejections
+[info] - golden: required_and_type_rejections
+[info] - golden: malformed_json
+[info] - golden: quarantine_redacts_location
+[info] - golden: dedupe_and_out_of_order_per_vin
+[info] - golden: invalid_record_does_not_advance_state
+[info] Run completed in 798 milliseconds.
+[info] Total number of tests run: 22
+[info] Suites: completed 2, aborted 0
+[info] Tests: succeeded 22, failed 0, canceled 0, ignored 0, pending 0
+[info] All tests passed.
+[success] Total time: 2 s, completed Nov 9, 2026, 9:45:59 AM

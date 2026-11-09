@@ -35,7 +35,7 @@ def sh(cmd: str) -> str:
 
 def env_details() -> dict:
     return {
-        "code_version": sh("git rev-parse --short HEAD") + ("-dirty" if sh("git status --porcelain") else ""),
+        "code_version": sh("git rev-parse --short HEAD") + ("-dirty" if sh("git status --porcelain --untracked-files=no") else ""),
         "cpu_model": sh("lscpu | sed -n 's/^Model name:[[:space:]]*//p'"),
         "nproc": os.cpu_count(),
         "mem_total": sh("free -h | awk '/^Mem:/{print $2}'"),

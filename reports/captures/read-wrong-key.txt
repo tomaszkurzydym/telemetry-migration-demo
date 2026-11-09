@@ -1,0 +1,4 @@
+# decrypt_consumer mode=WRONG-KEY topic=telemetry.battery.normalized.shadow
+SYN-VIN-0134 evt-42-00000013 DECRYPT REJECTED (InvalidTag: authentication failed)
+SYN-VIN-0142 evt-42-00000018 DECRYPT REJECTED (InvalidTag: authentication failed)
+SYN-VIN-0104 evt-42-00000036 DECRYPT REJECTED (InvalidTag: authentication failed)

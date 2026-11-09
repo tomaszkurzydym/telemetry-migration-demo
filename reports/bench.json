@@ -1,0 +1,182 @@
+{
+  "environment": {
+    "code_version": "738d08a-dirty",
+    "cpu_model": "Intel(R) Xeon(R) Processor",
+    "nproc": 8,
+    "mem_total": "31Gi",
+    "kernel": "6.8.0-1060-aws",
+    "os": "Ubuntu 22.04.5 LTS",
+    "docker": "29.9.2",
+    "kafka_image": "apache/kafka:3.7.2",
+    "kafka_topology": "1 broker (KRaft combined), RF=1, 6 partitions, same host as processor and generator",
+    "rustc": "rustc 1.99.1 (58cf8f9c3 2026-10-13)",
+    "python": "3.12.16",
+    "processor_config": {
+      "BATCH_MAX": "500",
+      "BATCH_MAX_MS": "100",
+      "instances": 1,
+      "transactions": "one Kafka transaction per batch"
+    }
+  },
+  "started_utc": "2026-11-09T09:55:57Z",
+  "method": "Local benchmark for the Rust shadow processor (SYNTHETIC DEMO, single-broker laptop/VM setup).\n\nOne warm-up run (discarded) + 3 seeded measured runs. Each run has two phases on fresh topics:\n  A. backlog drain: input produced first, then the processor drains it -> throughput, max lag.\n  B. paced: processor running, generator paced at --rate ev/s -> end-to-end latency, lag under load.\nWrites reports/bench.json and prints a Markdown table. Numbers describe THIS environment only.",
+  "warmup": [
+    {
+      "phase": "backlog",
+      "seed": 1000,
+      "events": 50000,
+      "rate": null,
+      "exit_code": 0,
+      "consumed": 50000,
+      "txn_committed": 100,
+      "throughput_events_per_s": 4283.8,
+      "e2e_latency_ms": {
+        "samples": 50000,
+        "p50": 6704,
+        "p95": 11807,
+        "p99": 12265,
+        "max": 12375
+      },
+      "max_consumer_lag": 49000,
+      "lag_samples": 57
+    }
+  ],
+  "runs": [
+    {
+      "phase": "backlog",
+      "seed": 1001,
+      "events": 200000,
+      "rate": null,
+      "exit_code": 0,
+      "consumed": 200000,
+      "txn_committed": 402,
+      "throughput_events_per_s": 3989.6,
+      "e2e_latency_ms": {
+        "samples": 200000,
+        "p50": 24351,
+        "p95": 47836,
+        "p99": 50283,
+        "max": 50880
+      },
+      "max_consumer_lag": 199000,
+      "lag_samples": 210
+    },
+    {
+      "phase": "paced",
+      "seed": 1001,
+      "events": 60000,
+      "rate": 2000,
+      "exit_code": 0,
+      "consumed": 60000,
+      "txn_committed": 148,
+      "throughput_events_per_s": 1992.0,
+      "e2e_latency_ms": {
+        "samples": 60000,
+        "p50": 210,
+        "p95": 302,
+        "p99": 312,
+        "max": 422
+      },
+      "max_consumer_lag": 616,
+      "lag_samples": 145
+    },
+    {
+      "phase": "backlog",
+      "seed": 1002,
+      "events": 200000,
+      "rate": null,
+      "exit_code": 0,
+      "consumed": 200000,
+      "txn_committed": 401,
+      "throughput_events_per_s": 3973.9,
+      "e2e_latency_ms": {
+        "samples": 200000,
+        "p50": 25618,
+        "p95": 48477,
+        "p99": 50557,
+        "max": 51065
+      },
+      "max_consumer_lag": 199000,
+      "lag_samples": 211
+    },
+    {
+      "phase": "paced",
+      "seed": 1002,
+      "events": 60000,
+      "rate": 2000,
+      "exit_code": 0,
+      "consumed": 60000,
+      "txn_committed": 148,
+      "throughput_events_per_s": 1992.0,
+      "e2e_latency_ms": {
+        "samples": 60000,
+        "p50": 209,
+        "p95": 301,
+        "p99": 309,
+        "max": 326
+      },
+      "max_consumer_lag": 610,
+      "lag_samples": 145
+    },
+    {
+      "phase": "backlog",
+      "seed": 1003,
+      "events": 200000,
+      "rate": null,
+      "exit_code": 0,
+      "consumed": 200000,
+      "txn_committed": 400,
+      "throughput_events_per_s": 4085.1,
+      "e2e_latency_ms": {
+        "samples": 200000,
+        "p50": 24517,
+        "p95": 47160,
+        "p99": 49263,
+        "max": 49770
+      },
+      "max_consumer_lag": 199000,
+      "lag_samples": 206
+    },
+    {
+      "phase": "paced",
+      "seed": 1003,
+      "events": 60000,
+      "rate": 2000,
+      "exit_code": 0,
+      "consumed": 60000,
+      "txn_committed": 148,
+      "throughput_events_per_s": 1992.1,
+      "e2e_latency_ms": {
+        "samples": 60000,
+        "p50": 208,
+        "p95": 300,
+        "p99": 309,
+        "max": 325
+      },
+      "max_consumer_lag": 600,
+      "lag_samples": 145
+    }
+  ],
+  "aggregate": {
+    "backlog": {
+      "throughput_events_per_s": {
+        "min": 3973.9,
+        "median": 3989.6,
+        "max": 4085.1
+      },
+      "p50_ms_median": 24517,
+      "p99_ms_median": 50283,
+      "max_lag_max": 199000
+    },
+    "paced": {
+      "throughput_events_per_s": {
+        "min": 1992.0,
+        "median": 1992.0,
+        "max": 1992.1
+      },
+      "p50_ms_median": 209,
+      "p99_ms_median": 309,
+      "max_lag_max": 616
+    }
+  }
+}
