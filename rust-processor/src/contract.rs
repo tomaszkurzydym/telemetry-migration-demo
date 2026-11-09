@@ -67,14 +67,52 @@ pub struct Rejection {
     pub event_id: Option<String>,
 }
 
-/// Exact decimal from a JSON number literal (arbitrary_precision keeps the source text).
+/// Largest supported coefficient (contract §3 decimal range): 2^96 − 1.
+pub const MAX_COEFFICIENT: u128 = (1 << 96) - 1;
+/// Largest supported number of fraction digits (contract §3 decimal range).
+pub const MAX_SCALE: i64 = 28;
+
+/// Exact decimal from a JSON number literal (arbitrary_precision keeps the source text), or `None`
+/// when the value is outside the contract §3 decimal range.
 pub fn decimal_of(n: &Number) -> Option<Decimal> {
     let s = n.to_string();
-    if s.contains(['e', 'E']) {
-        Decimal::from_scientific(&s).ok()
-    } else {
-        Decimal::from_str_exact(&s).ok()
+    let (mant, exp) = match s.find(['e', 'E']) {
+        Some(i) => (&s[..i], s[i + 1..].parse::<i64>().ok()?),
+        None => (s.as_str(), 0),
+    };
+    let (neg, mant) = match mant.strip_prefix('-') {
+        Some(m) => (true, m),
+        None => (false, mant),
+    };
+    let (int, frac) = mant.split_once('.').unwrap_or((mant, ""));
+    let mut digits = format!("{int}{frac}").trim_start_matches('0').to_string();
+    if digits.is_empty() {
+        return Some(Decimal::ZERO);
     }
+    let mut scale = (frac.len() as i64).checked_sub(exp)?;
+    while scale > 0 && digits.ends_with('0') {
+        digits.pop();
+        scale -= 1;
+    }
+    if scale < 0 {
+        if digits.len() as i64 - scale > 29 {
+            return None;
+        }
+        digits.push_str(&"0".repeat(-scale as usize));
+        scale = 0;
+    }
+    if scale > MAX_SCALE || digits.len() > 29 {
+        return None;
+    }
+    let m: u128 = digits.parse().ok()?;
+    if m > MAX_COEFFICIENT {
+        return None;
+    }
+    let m = m as i128;
+    Some(Decimal::from_i128_with_scale(
+        if neg { -m } else { m },
+        scale as u32,
+    ))
 }
 
 fn is_integer_literal(n: &Number) -> bool {
@@ -498,6 +536,59 @@ mod tests {
                 "{bad}"
             );
         }
+    }
+
+    #[test]
+    fn decimal_range_limits() {
+        let d = |s: &str| decimal_of(&serde_json::from_str(s).unwrap()).map(|d| d.to_string());
+        assert_eq!(
+            d("79228162514264337593543950335").as_deref(),
+            Some("79228162514264337593543950335")
+        );
+        assert_eq!(
+            d("-7.9228162514264337593543950335e28").as_deref(),
+            Some("-79228162514264337593543950335")
+        );
+        assert_eq!(d("79228162514264337593543950336"), None);
+        assert_eq!(d("1e30"), None);
+        assert_eq!(
+            d("1e-28").as_deref(),
+            Some("0.0000000000000000000000000001")
+        );
+        assert_eq!(d("1e-29"), None);
+        assert_eq!(
+            d("1.500000000000000000000000000000").as_deref(),
+            Some("1.5")
+        );
+        assert_eq!(
+            d("100000000000000000000000000000e-2").as_deref(),
+            Some("1000000000000000000000000000")
+        );
+        assert_eq!(d("0e-99999").as_deref(), Some("0"));
+        assert_eq!(d("1e99999999999999999999"), None);
+        assert_eq!(
+            code(validate(Some(K), &with("pack_voltage_v", "1e30"))),
+            Some("INVALID_TYPE")
+        );
+        assert_eq!(
+            code(validate(Some(K), &with("cell_delta_mv", "1e-29"))),
+            Some("INVALID_TYPE")
+        );
+        assert_eq!(
+            code(validate(
+                Some(K),
+                &with(
+                    "location",
+                    r#"{"lat":1.00000000000000000000000000001,"lon":0}"#
+                )
+            )),
+            Some("INVALID_LOCATION")
+        );
+        assert!(validate(
+            Some(K),
+            &with("pack_voltage_v", "79228162514264337593543950335")
+        )
+        .is_ok());
     }
 
     #[test]

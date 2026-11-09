@@ -147,5 +147,5 @@ fn golden_fixtures() {
             checked += 1;
         }
     }
-    assert_eq!(checked, 31);
+    assert_eq!(checked, 34);
 }

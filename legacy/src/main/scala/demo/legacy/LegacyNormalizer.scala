@@ -56,6 +56,17 @@ object LegacyNormalizer {
   private def strField(o: ObjectNode, k: String): Option[String] =
     Option(o.get(k)).filter(_.isTextual).map(_.asText).filter(_.nonEmpty)
 
+  private val MaxCoefficient = java.math.BigInteger.ONE.shiftLeft(96).subtract(java.math.BigInteger.ONE)
+
+  /** Contract §3 decimal range: ±m × 10^-s with m ≤ 2^96 − 1 and s ≤ 28, after dropping trailing zeros. */
+  def inDecimalRange(d: JBigDecimal): Boolean =
+    d.signum == 0 || {
+      val s = d.stripTrailingZeros
+      if (s.scale > 28) false
+      else if (s.precision - s.scale > 29) false
+      else s.setScale(math.max(s.scale, 0)).unscaledValue.abs.compareTo(MaxCoefficient) <= 0
+    }
+
   def validate(key: Option[String], value: Array[Byte]): Result = {
     val o = parseObject(value).getOrElse(return Rejected("MALFORMED_JSON", None, None))
     def reject(code: String) = Rejected(code, strField(o, "vin"), strField(o, "event_id"))
@@ -77,7 +88,7 @@ object LegacyNormalizer {
     val nums = Seq("soc_pct", "pack_voltage_v", "pack_temp_c", "cell_delta_mv").map { k =>
       present(o, k) match {
         case None                    => None
-        case Some(n) if n.isNumber  => Some(n.decimalValue)
+        case Some(n) if n.isNumber && inDecimalRange(n.decimalValue) => Some(n.decimalValue)
         case Some(_)                 => return reject("INVALID_TYPE")
       }
     }
@@ -90,7 +101,9 @@ object LegacyNormalizer {
       case None => None
       case Some(l: ObjectNode) =>
         (Option(l.get("lat")), Option(l.get("lon"))) match {
-          case (Some(a), Some(b)) if a.isNumber && b.isNumber => Some((a.decimalValue, b.decimalValue))
+          case (Some(a), Some(b))
+              if a.isNumber && b.isNumber && inDecimalRange(a.decimalValue) && inDecimalRange(b.decimalValue) =>
+            Some((a.decimalValue, b.decimalValue))
           case _                                              => return reject("INVALID_LOCATION")
         }
       case Some(_) => return reject("INVALID_LOCATION")
