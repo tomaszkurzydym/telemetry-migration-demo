@@ -63,8 +63,7 @@ def main() -> int:
     def qidx(rs):
         c = Counter()
         for r in rs:
-            q = json.loads(r["value"])
-            c[(q["source"]["partition"], q["source"]["offset"], q["error_code"])] += 1
+            c[json.dumps(json.loads(r["value"]), sort_keys=True)] += 1
         return c
     bq, fq = qidx(rows(B, "rust_q")), qidx(rows(F, "rust_q"))
     q_lost = sum(1 for k in bq if k not in fq)
