@@ -9,16 +9,16 @@
     "quarantined": 1990,
     "txn_committed": 100
   },
-  "first_msg_unix_ms": 1794218178070,
-  "last_commit_unix_ms": 1794218189742,
-  "processing_window_ms": 11672,
-  "throughput_events_per_s": 4283.755997258396,
+  "first_msg_unix_ms": 1794228123579,
+  "last_commit_unix_ms": 1794228134864,
+  "processing_window_ms": 11285,
+  "throughput_events_per_s": 4430.660168365086,
   "e2e_latency_ms": {
     "samples": 50000,
-    "p50": 6704,
-    "p95": 11807,
-    "p99": 12265,
-    "max": 12375
+    "p50": 5997,
+    "p95": 10975,
+    "p99": 11420,
+    "max": 11532
   },
   "batch_max": 500,
   "batch_max_ms": 100

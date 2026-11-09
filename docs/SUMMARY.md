@@ -11,10 +11,10 @@ Streaming** (`legacy/`) to a **Rust Kafka processor** (`rust-processor/`, rdkafk
 ran in **shadow mode** — own consumer group `rust-shadow-cg`, own `*.shadow` topics — next to the legacy job
 (`legacy-cg`) on the same seeded input, and was compared record by record.
 
-## Results (details and reproduction commands: [EVIDENCE.md](EVIDENCE.md), code version `738d08a`)
+## Results (details and reproduction commands: [EVIDENCE.md](EVIDENCE.md), code version `35d4918`)
 | Area | Result |
 |---|---|
-| Unit / fixture tests | Rust 39 passed (38 unit + golden), fmt + clippy `-D warnings` clean; Scala 22 passed (8 characterization + 14 golden) |
+| Unit / fixture tests | Rust 41 passed (40 unit + golden), fmt + clippy `-D warnings` clean; Scala 22 passed (8 characterization + 14 golden) |
 | Shadow diff (seed 42, 50,000 events) | **PASS** — 47,023 joined, 0 missing, 0 extra, **0 unexplained mismatches**, 0 ordering violations; quarantine parity 1,956 / 1,956 |
 | DEFECT-1 | 23,587 `cell_delta_mv` diffs, all classified: legacy truncates, contract/Rust round half-up — **fixed in Rust** |
 | Encryption | 33,022 / 33,022 location pairs decrypt to equal plaintext; every ciphertext authenticates under the expected key; 66,044 nonces, 0 repeats |
@@ -23,7 +23,7 @@ ran in **shadow mode** — own consumer group `rust-shadow-cg`, own `*.shadow` t
 | Fault: kill -9 ×2 + restart (300k events) | **PASS** — 282,067 committed outputs = clean baseline; 0 lost, 0 duplicate, 0 field diffs |
 | Fault: rebalance (scale 1→2, SIGKILL one, add one) | **PASS** — same counts; 0 lost, 0 duplicate |
 | Startup without key | Rust exits 78, legacy JVM exits 78 (sbt reports it), both before touching Kafka |
-| Benchmark (1 warm-up + 3 seeded runs, one 8-vCPU VM) | backlog drain median **3,990 ev/s** (3,974–4,085); paced 2,000 ev/s: p50 209 ms, p99 309 ms, max lag 616 |
+| Benchmark (1 warm-up + 3 seeded runs, one 8-vCPU VM) | backlog drain median **4,076 ev/s** (3,882–4,083); paced 2,000 ev/s: median p50 209 ms, median p99 311 ms (run 1: 457 ms), max lag 904 |
 | k8s manifests | `kubectl apply --dry-run` (client + server) only — never deployed |
 
 ## What this does *not* claim

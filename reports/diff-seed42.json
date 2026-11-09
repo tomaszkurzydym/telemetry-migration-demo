@@ -1,6 +1,6 @@
 {
   "run": "seed42",
-  "code_version": "738d08a",
+  "code_version": "35d4918-dirty",
   "topics": {
     "raw": "telemetry.battery.raw",
     "legacy": "telemetry.battery.normalized",
@@ -85,5 +85,6 @@
     }
   },
   "unexplained_total": 0,
+  "empty_inputs": [],
   "verdict": "PASS"
 }

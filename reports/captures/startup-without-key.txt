@@ -1,4 +1,4 @@
-[2026-11-09T09:46:00.245Z ERROR telemetry_processor] FATAL startup: LOCATION_ENC_KEY is not set; refusing to start
+[2026-11-09T12:31:08.636Z ERROR telemetry_processor] FATAL startup: LOCATION_ENC_KEY is not set; refusing to start
 rust exit=78
 FATAL startup: LOCATION_ENC_KEY is not set; refusing to start
 [error] Nonzero exit code returned from runner: 78
