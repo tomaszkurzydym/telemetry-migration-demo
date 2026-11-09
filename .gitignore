@@ -1,0 +1,13 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+rust-processor/target/
+legacy/target/
+legacy/project/target/
+legacy/project/project/
+legacy/.bsp/
+.idea/
+.vscode/
+/build/
+/run/

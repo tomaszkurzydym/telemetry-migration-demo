@@ -1,0 +1,81 @@
+{
+  "contract": "docs/contract.md schema_v 2",
+  "cases": [
+    {"name": "half_up_rounding_and_kelvin", "records": [
+      {"key": "SYN-VIN-0001", "input": {"vin": "SYN-VIN-0001", "event_id": "g-001", "ts_ms": 1767225600000, "soc_pct": 55.25, "pack_voltage_v": 398.2, "pack_temp_c": 25.005, "cell_delta_mv": 12.5, "firmware": "bms-1.0.0"},
+       "expect": {"emit": {"schema_v": 2, "vin": "SYN-VIN-0001", "event_id": "g-001", "event_time": "2026-01-01T00:00:00.000Z", "soc_pct": 55.3, "pack_voltage_v": 398.2, "pack_temp_k": 298.16, "cell_delta_mv": 13, "firmware": "bms-1.0.0", "out_of_order": false}},
+       "legacy_expect_override": {"cell_delta_mv": 12}}
+    ]},
+    {"name": "round_down_side", "records": [
+      {"key": "SYN-VIN-0002", "input": {"vin": "SYN-VIN-0002", "event_id": "g-002", "ts_ms": 1767225600123, "soc_pct": 55.24, "pack_voltage_v": 401, "pack_temp_c": 25.004, "cell_delta_mv": 12.4, "firmware": "bms-1.0.0"},
+       "expect": {"emit": {"schema_v": 2, "vin": "SYN-VIN-0002", "event_id": "g-002", "event_time": "2026-01-01T00:00:00.123Z", "soc_pct": 55.2, "pack_voltage_v": 401, "pack_temp_k": 298.15, "cell_delta_mv": 12, "firmware": "bms-1.0.0", "out_of_order": false}}}
+    ]},
+    {"name": "negative_cell_delta_half_away_from_zero", "records": [
+      {"key": "SYN-VIN-0003", "input": {"vin": "SYN-VIN-0003", "event_id": "g-003", "ts_ms": 1767225601000, "soc_pct": 10, "pack_voltage_v": 350.5, "pack_temp_c": -0.005, "cell_delta_mv": -3.5, "firmware": "bms-1.0.0"},
+       "expect": {"emit": {"schema_v": 2, "vin": "SYN-VIN-0003", "event_id": "g-003", "event_time": "2026-01-01T00:00:01.000Z", "soc_pct": 10.0, "pack_voltage_v": 350.5, "pack_temp_k": 273.15, "cell_delta_mv": -4, "firmware": "bms-1.0.0", "out_of_order": false}},
+       "legacy_expect_override": {"cell_delta_mv": -3}}
+    ]},
+    {"name": "inclusive_lower_bounds_and_epoch", "records": [
+      {"key": "SYN-VIN-0004", "input": {"vin": "SYN-VIN-0004", "event_id": "g-004", "ts_ms": 0, "soc_pct": 0, "pack_voltage_v": 300, "pack_temp_c": -40, "cell_delta_mv": 0, "firmware": "bms-1.0.0"},
+       "expect": {"emit": {"schema_v": 2, "vin": "SYN-VIN-0004", "event_id": "g-004", "event_time": "1970-01-01T00:00:00.000Z", "soc_pct": 0.0, "pack_voltage_v": 300, "pack_temp_k": 233.15, "cell_delta_mv": 0, "firmware": "bms-1.0.0", "out_of_order": false}}}
+    ]},
+    {"name": "inclusive_upper_bounds", "records": [
+      {"key": "SYN-VIN-0005", "input": {"vin": "SYN-VIN-0005", "event_id": "g-005", "ts_ms": 1767225600999, "soc_pct": 100, "pack_voltage_v": 420.0, "pack_temp_c": 80, "cell_delta_mv": 99.9, "firmware": "bms-1.0.0"},
+       "expect": {"emit": {"schema_v": 2, "vin": "SYN-VIN-0005", "event_id": "g-005", "event_time": "2026-01-01T00:00:00.999Z", "soc_pct": 100.0, "pack_voltage_v": 420.0, "pack_temp_k": 353.15, "cell_delta_mv": 100, "firmware": "bms-1.0.0", "out_of_order": false}},
+       "legacy_expect_override": {"cell_delta_mv": 99}}
+    ]},
+    {"name": "only_required_fields", "records": [
+      {"key": "SYN-VIN-0006", "input": {"vin": "SYN-VIN-0006", "event_id": "g-006", "ts_ms": 1767225600000},
+       "expect": {"emit": {"schema_v": 2, "vin": "SYN-VIN-0006", "event_id": "g-006", "event_time": "2026-01-01T00:00:00.000Z", "soc_pct": null, "pack_voltage_v": null, "pack_temp_k": null, "cell_delta_mv": null, "firmware": null, "out_of_order": false}}}
+    ]},
+    {"name": "location_encrypted", "records": [
+      {"key": "SYN-VIN-0007", "input": {"vin": "SYN-VIN-0007", "event_id": "g-007", "ts_ms": 1767225600000, "soc_pct": 50, "pack_voltage_v": 380, "pack_temp_c": 20, "cell_delta_mv": 5, "firmware": "bms-1.0.0", "location": "@LOC-A"},
+       "expect": {"emit": {"schema_v": 2, "vin": "SYN-VIN-0007", "event_id": "g-007", "event_time": "2026-01-01T00:00:00.000Z", "soc_pct": 50.0, "pack_voltage_v": 380, "pack_temp_k": 293.15, "cell_delta_mv": 5, "firmware": "bms-1.0.0", "out_of_order": false}, "location_enc": "@LOC-A"}}
+    ]},
+    {"name": "null_location_omitted", "records": [
+      {"key": "SYN-VIN-0008", "input": {"vin": "SYN-VIN-0008", "event_id": "g-008", "ts_ms": 1767225600000, "location": null},
+       "expect": {"emit": {"schema_v": 2, "vin": "SYN-VIN-0008", "event_id": "g-008", "event_time": "2026-01-01T00:00:00.000Z", "soc_pct": null, "pack_voltage_v": null, "pack_temp_k": null, "cell_delta_mv": null, "firmware": null, "out_of_order": false}}}
+    ]},
+    {"name": "range_rejections", "records": [
+      {"key": "SYN-VIN-0009", "input": {"vin": "SYN-VIN-0009", "event_id": "g-009a", "ts_ms": 1, "soc_pct": 100.01}, "expect": {"quarantine": "OUT_OF_RANGE_SOC"}},
+      {"key": "SYN-VIN-0009", "input": {"vin": "SYN-VIN-0009", "event_id": "g-009b", "ts_ms": 1, "soc_pct": -0.01}, "expect": {"quarantine": "OUT_OF_RANGE_SOC"}},
+      {"key": "SYN-VIN-0009", "input": {"vin": "SYN-VIN-0009", "event_id": "g-009c", "ts_ms": 1, "pack_temp_c": 80.01}, "expect": {"quarantine": "OUT_OF_RANGE_TEMP"}},
+      {"key": "SYN-VIN-0009", "input": {"vin": "SYN-VIN-0009", "event_id": "g-009d", "ts_ms": 1, "pack_temp_c": -40.01}, "expect": {"quarantine": "OUT_OF_RANGE_TEMP"}}
+    ]},
+    {"name": "required_and_type_rejections", "records": [
+      {"key": "SYN-VIN-0010", "input": {"event_id": "g-010a", "ts_ms": 1}, "expect": {"quarantine": "MISSING_REQUIRED_FIELD"}},
+      {"key": "SYN-VIN-0010", "input": {"vin": "SYN-VIN-0010", "ts_ms": 1}, "expect": {"quarantine": "MISSING_REQUIRED_FIELD"}},
+      {"key": "SYN-VIN-0010", "input": {"vin": "SYN-VIN-0010", "event_id": "g-010c"}, "expect": {"quarantine": "MISSING_REQUIRED_FIELD"}},
+      {"key": "SYN-VIN-0010", "input": {"vin": "SYN-VIN-0010", "event_id": "g-010d", "ts_ms": 1, "soc_pct": "50"}, "expect": {"quarantine": "INVALID_TYPE"}},
+      {"key": "SYN-VIN-0010", "input": {"vin": "SYN-VIN-0010", "event_id": "g-010e", "ts_ms": -1}, "expect": {"quarantine": "INVALID_TS"}},
+      {"key": "SYN-VIN-0099", "input": {"vin": "SYN-VIN-0010", "event_id": "g-010f", "ts_ms": 1}, "expect": {"quarantine": "KEY_MISMATCH"}}
+    ]},
+    {"name": "malformed_json", "records": [
+      {"key": "SYN-VIN-0011", "input_raw": "{\"vin\":\"SYN-VIN-0011\",\"event_id\":\"g-011\",\"ts_ms\":17", "expect": {"quarantine": "MALFORMED_JSON"}},
+      {"key": "SYN-VIN-0011", "input_raw": "not json at all", "expect": {"quarantine": "MALFORMED_JSON"}}
+    ]},
+    {"name": "quarantine_redacts_location", "records": [
+      {"key": "SYN-VIN-0012", "input": {"vin": "SYN-VIN-0012", "event_id": "g-012a", "ts_ms": 1, "soc_pct": 120, "location": "@LOC-B"}, "expect": {"quarantine": "OUT_OF_RANGE_SOC", "redacted": true}},
+      {"key": "SYN-VIN-0012", "input": {"vin": "SYN-VIN-0012", "event_id": "g-012b", "ts_ms": 1, "location": "@LOC-INVALID"}, "expect": {"quarantine": "INVALID_LOCATION", "redacted": true}}
+    ]},
+    {"name": "dedupe_and_out_of_order_per_vin", "records": [
+      {"key": "SYN-VIN-0013", "input": {"vin": "SYN-VIN-0013", "event_id": "s-1", "ts_ms": 1000},
+       "expect": {"emit": {"schema_v": 2, "vin": "SYN-VIN-0013", "event_id": "s-1", "event_time": "1970-01-01T00:00:01.000Z", "soc_pct": null, "pack_voltage_v": null, "pack_temp_k": null, "cell_delta_mv": null, "firmware": null, "out_of_order": false}}},
+      {"key": "SYN-VIN-0013", "input": {"vin": "SYN-VIN-0013", "event_id": "s-2", "ts_ms": 900},
+       "expect": {"emit": {"schema_v": 2, "vin": "SYN-VIN-0013", "event_id": "s-2", "event_time": "1970-01-01T00:00:00.900Z", "soc_pct": null, "pack_voltage_v": null, "pack_temp_k": null, "cell_delta_mv": null, "firmware": null, "out_of_order": true}}},
+      {"key": "SYN-VIN-0013", "input": {"vin": "SYN-VIN-0013", "event_id": "s-1", "ts_ms": 5000}, "expect": {"duplicate": true}},
+      {"key": "SYN-VIN-0013", "input_raw": "{\"vin\":\"SYN-VIN-0013\",", "expect": {"quarantine": "MALFORMED_JSON"}},
+      {"key": "SYN-VIN-0013", "input": {"vin": "SYN-VIN-0013", "event_id": "s-3", "ts_ms": 950},
+       "expect": {"emit": {"schema_v": 2, "vin": "SYN-VIN-0013", "event_id": "s-3", "event_time": "1970-01-01T00:00:00.950Z", "soc_pct": null, "pack_voltage_v": null, "pack_temp_k": null, "cell_delta_mv": null, "firmware": null, "out_of_order": true}}},
+      {"key": "SYN-VIN-0013", "input": {"vin": "SYN-VIN-0013", "event_id": "s-4", "ts_ms": 1000},
+       "expect": {"emit": {"schema_v": 2, "vin": "SYN-VIN-0013", "event_id": "s-4", "event_time": "1970-01-01T00:00:01.000Z", "soc_pct": null, "pack_voltage_v": null, "pack_temp_k": null, "cell_delta_mv": null, "firmware": null, "out_of_order": false}}},
+      {"key": "SYN-VIN-0014", "input": {"vin": "SYN-VIN-0014", "event_id": "s-2", "ts_ms": 1},
+       "expect": {"emit": {"schema_v": 2, "vin": "SYN-VIN-0014", "event_id": "s-2", "event_time": "1970-01-01T00:00:00.001Z", "soc_pct": null, "pack_voltage_v": null, "pack_temp_k": null, "cell_delta_mv": null, "firmware": null, "out_of_order": false}}}
+    ]},
+    {"name": "invalid_record_does_not_advance_state", "records": [
+      {"key": "SYN-VIN-0015", "input": {"vin": "SYN-VIN-0015", "event_id": "i-1", "ts_ms": 9000, "soc_pct": 101}, "expect": {"quarantine": "OUT_OF_RANGE_SOC"}},
+      {"key": "SYN-VIN-0015", "input": {"vin": "SYN-VIN-0015", "event_id": "i-1", "ts_ms": 100},
+       "expect": {"emit": {"schema_v": 2, "vin": "SYN-VIN-0015", "event_id": "i-1", "event_time": "1970-01-01T00:00:00.100Z", "soc_pct": null, "pack_voltage_v": null, "pack_temp_k": null, "cell_delta_mv": null, "firmware": null, "out_of_order": false}}}
+    ]}
+  ]
+}
