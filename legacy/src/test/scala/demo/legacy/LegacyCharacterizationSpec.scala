@@ -79,6 +79,9 @@ class LegacyCharacterizationSpec extends AnyFunSuite {
     assert(q.contains("[REDACTED]") && !q.contains("12.345678") && q.contains("OUT_OF_RANGE_SOC"))
     val trunc = """{"vin":"SYN-VIN-0001","location":{"lat":12.345678,"lon":-30.5"""
     assert(!LegacyNormalizer.redactPayload(b(trunc)).contains("12.345678"))
+    val nested = """{"vin":"v","lat":10.5,"extra":{"longitude":-29.5,"pts":[{"location":{"lat":1,"lon":2}}]}}"""
+    assert(LegacyNormalizer.redactPayload(b(nested)) ==
+      """{"vin":"v","lat":"[REDACTED]","extra":{"longitude":"[REDACTED]","pts":[{"location":"[REDACTED]"}]}}""")
   }
 
   test("dedupe by event_id and out_of_order flag per VIN") {

@@ -1,7 +1,7 @@
 package demo.legacy
 
 import com.fasterxml.jackson.core.JsonGenerator
-import com.fasterxml.jackson.databind.node.{JsonNodeFactory, ObjectNode, TextNode}
+import com.fasterxml.jackson.databind.node.{ArrayNode, JsonNodeFactory, ObjectNode, TextNode}
 import com.fasterxml.jackson.databind.{DeserializationFeature, JsonNode, ObjectMapper}
 
 import java.math.{BigDecimal => JBigDecimal, RoundingMode}
@@ -147,16 +147,27 @@ object LegacyNormalizer {
   }
 
   private val LocationRe = "\"location\"\\s*:\\s*(\\{[^}]*\\}?|\"(?:[^\"\\\\]|\\\\.)*\"?|[^,}\\]]*)".r
-  private val LatLonRe = "\"(lat|lon)\"\\s*:\\s*-?[0-9][0-9.eE+\\-]*".r
+  private val LatLonRe = "\"(lat|lon|latitude|longitude)\"\\s*:\\s*-?[0-9][0-9.eE+\\-]*".r
 
   def redactRawText(s: String): String = {
     val a = LocationRe.replaceAllIn(s, java.util.regex.Matcher.quoteReplacement("\"location\":\"[REDACTED]\""))
     LatLonRe.replaceAllIn(a, m => java.util.regex.Matcher.quoteReplacement("\"" + m.group(1) + "\":\"[REDACTED]\""))
   }
 
+  private val LocationKeys = Set("location", "lat", "lon", "latitude", "longitude")
+
+  private def redactTree(n: JsonNode): Unit = n match {
+    case o: ObjectNode =>
+      o.fieldNames.asScala.toList.foreach { k =>
+        if (LocationKeys(k)) o.set[JsonNode](k, TextNode.valueOf("[REDACTED]")) else redactTree(o.get(k))
+      }
+    case a: ArrayNode => a.elements.asScala.foreach(redactTree)
+    case _ =>
+  }
+
   def redactPayload(value: Array[Byte]): String = parseObject(value) match {
     case Some(o) =>
-      if (o.has("location")) o.set[JsonNode]("location", TextNode.valueOf("[REDACTED]"))
+      redactTree(o)
       mapper.writeValueAsString(o)
     case None => redactRawText(new String(value, StandardCharsets.UTF_8))
   }

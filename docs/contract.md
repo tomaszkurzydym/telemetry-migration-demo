@@ -136,10 +136,12 @@ pack_voltage_v, pack_temp_k, cell_delta_mv, firmware, out_of_order` plus `locati
 
 - Key = the input Kafka key. `vin` and `event_id` are copied when they are present as strings, otherwise `null`.
 - `original_payload` is the original value with the location removed:
-  - parseable object: the top-level `location` value is replaced by the string `"[REDACTED]"` and the object is
-    re-serialized compactly with key order preserved;
+  - parseable object: the value of every `location`, `lat`, `lon`, `latitude` or `longitude` key, at any depth
+    (including inside arrays), is replaced by the string `"[REDACTED]"`, and the object is re-serialized compactly
+    with key order preserved;
   - malformed input: in the raw text, any `"location": …` value (up to the matching `}` or the end of the text)
-    becomes `"location":"[REDACTED]"`, and any remaining `"lat"`/`"lon"` numeric values become `"[REDACTED]"`.
+    becomes `"location":"[REDACTED]"`, and any remaining `"lat"`/`"lon"`/`"latitude"`/`"longitude"` numeric values
+    become `"[REDACTED]"`.
 
 ## 8. Delivery semantics (Rust processor)
 

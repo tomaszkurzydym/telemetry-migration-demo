@@ -15,7 +15,9 @@ fn location_re() -> &'static Regex {
 
 fn latlon_re() -> &'static Regex {
     static RE: OnceLock<Regex> = OnceLock::new();
-    RE.get_or_init(|| Regex::new(r#""(lat|lon)"\s*:\s*-?[0-9][0-9.eE+\-]*"#).unwrap())
+    RE.get_or_init(|| {
+        Regex::new(r#""(lat|lon|latitude|longitude)"\s*:\s*-?[0-9][0-9.eE+\-]*"#).unwrap()
+    })
 }
 
 /// Text-level redaction for payloads that are not a parseable JSON object.
@@ -26,14 +28,29 @@ pub fn redact_raw_text(s: &str) -> String {
         .into_owned()
 }
 
-/// Returns the original payload with any location removed.
-pub fn redact_payload(value: &[u8]) -> String {
-    if let Ok(Value::Object(mut m)) = serde_json::from_slice::<Value>(value) {
-        if m.contains_key("location") {
-            m.insert("location".into(), Value::String(REDACTED.into()));
+const LOCATION_KEYS: [&str; 5] = ["location", "lat", "lon", "latitude", "longitude"];
+
+fn redact_tree(v: &mut Value) {
+    match v {
+        Value::Object(m) => {
+            for (k, val) in m.iter_mut() {
+                if LOCATION_KEYS.contains(&k.as_str()) {
+                    *val = Value::String(REDACTED.into());
+                } else {
+                    redact_tree(val);
+                }
+            }
         }
-        return serde_json::to_string(&Value::Object(m))
-            .expect("re-serializing parsed JSON cannot fail");
+        Value::Array(a) => a.iter_mut().for_each(redact_tree),
+        _ => {}
+    }
+}
+
+/// Returns the original payload with every location-like key, at any depth, redacted.
+pub fn redact_payload(value: &[u8]) -> String {
+    if let Ok(mut v @ Value::Object(_)) = serde_json::from_slice::<Value>(value) {
+        redact_tree(&mut v);
+        return serde_json::to_string(&v).expect("re-serializing parsed JSON cannot fail");
     }
     redact_raw_text(&String::from_utf8_lossy(value))
 }
@@ -76,6 +93,17 @@ mod tests {
         assert_eq!(
             redact_payload(br#"{"location":"somewhere"}"#),
             r#"{"location":"[REDACTED]"}"#
+        );
+    }
+
+    #[test]
+    fn nested_and_stray_coordinates_redacted_in_parsed_objects() {
+        let out = redact_payload(
+            br#"{"vin":"v","lat":10.5,"extra":{"longitude":-29.5,"pts":[{"location":{"lat":1,"lon":2}}]}}"#,
+        );
+        assert_eq!(
+            out,
+            r#"{"vin":"v","lat":"[REDACTED]","extra":{"longitude":"[REDACTED]","pts":[{"location":"[REDACTED]"}]}}"#
         );
     }
 
