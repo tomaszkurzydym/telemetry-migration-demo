@@ -17,6 +17,7 @@
 [info] - golden: quarantine_redacts_location
 [info] - golden: dedupe_and_out_of_order_per_vin
 [info] - golden: invalid_record_does_not_advance_state
+[info] - golden: decimal_range_limits
 [info] LegacyCharacterizationSpec:
 [info] - DEFECT-1: cell_delta_mv is truncated, not rounded
 [info] - soc_pct half-up to 1dp, temp to Kelvin 2dp, ISO event_time, schema_v 2
@@ -26,9 +27,9 @@
 [info] - missing key hard-fails
 [info] - quarantine redacts location, including malformed payloads
 [info] - dedupe by event_id and out_of_order flag per VIN
-[info] Run completed in 715 milliseconds.
-[info] Total number of tests run: 22
+[info] Run completed in 725 milliseconds.
+[info] Total number of tests run: 23
 [info] Suites: completed 2, aborted 0
-[info] Tests: succeeded 22, failed 0, canceled 0, ignored 0, pending 0
+[info] Tests: succeeded 23, failed 0, canceled 0, ignored 0, pending 0
 [info] All tests passed.
-[success] Total time: 2 s, completed Nov 9, 2026, 12:31:08 PM
+[success] Total time: 2 s, completed Nov 9, 2026, 12:58:06 PM

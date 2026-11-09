@@ -7,18 +7,18 @@
     "normalized": 188043,
     "out_of_order": 5730,
     "quarantined": 7958,
-    "txn_committed": 405
+    "txn_committed": 400
   },
-  "first_msg_unix_ms": 1794228301198,
-  "last_commit_unix_ms": 1794228352723,
-  "processing_window_ms": 51525,
-  "throughput_events_per_s": 3881.610868510432,
+  "first_msg_unix_ms": 1794229891319,
+  "last_commit_unix_ms": 1794229940233,
+  "processing_window_ms": 48914,
+  "throughput_events_per_s": 4088.808929958703,
   "e2e_latency_ms": {
     "samples": 200000,
-    "p50": 25215,
-    "p95": 49587,
-    "p99": 51728,
-    "max": 52293
+    "p50": 24614,
+    "p95": 47086,
+    "p99": 49156,
+    "max": 49663
   },
   "batch_max": 500,
   "batch_max_ms": 100

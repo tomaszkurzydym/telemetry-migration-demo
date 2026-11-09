@@ -1,6 +1,6 @@
 {
   "environment": {
-    "code_version": "35d4918-dirty",
+    "code_version": "53aad3a-dirty",
     "cpu_model": "Intel(R) Xeon(R) Processor",
     "nproc": 8,
     "mem_total": "31Gi",
@@ -18,7 +18,7 @@
       "transactions": "one Kafka transaction per batch"
     }
   },
-  "started_utc": "2026-11-09T12:41:39Z",
+  "started_utc": "2026-11-09T13:08:12Z",
   "method": "Local benchmark for the Rust shadow processor (SYNTHETIC DEMO, single-broker laptop/VM setup).\n\nOne warm-up run (discarded) + 3 seeded measured runs. Each run has two phases on fresh topics:\n  A. backlog drain: input produced first, then the processor drains it -> throughput, max lag.\n  B. paced: processor running, generator paced at --rate ev/s -> end-to-end latency, lag under load.\nWrites reports/bench.json and prints a Markdown table. Numbers describe THIS environment only.",
   "warmup": [
     {
@@ -29,16 +29,16 @@
       "exit_code": 0,
       "consumed": 50000,
       "txn_committed": 100,
-      "throughput_events_per_s": 4430.7,
+      "throughput_events_per_s": 4449.2,
       "e2e_latency_ms": {
         "samples": 50000,
-        "p50": 5997,
-        "p95": 10975,
-        "p99": 11420,
-        "max": 11532
+        "p50": 6056,
+        "p95": 10974,
+        "p99": 11409,
+        "max": 11513
       },
       "max_consumer_lag": 49000,
-      "lag_samples": 56
+      "lag_samples": 55
     }
   ],
   "runs": [
@@ -49,14 +49,14 @@
       "rate": null,
       "exit_code": 0,
       "consumed": 200000,
-      "txn_committed": 400,
-      "throughput_events_per_s": 4083.2,
+      "txn_committed": 401,
+      "throughput_events_per_s": 4063.7,
       "e2e_latency_ms": {
         "samples": 200000,
-        "p50": 24044,
-        "p95": 46655,
-        "p99": 48718,
-        "max": 49224
+        "p50": 24031,
+        "p95": 46851,
+        "p99": 48901,
+        "max": 49459
       },
       "max_consumer_lag": 198500,
       "lag_samples": 206
@@ -68,17 +68,17 @@
       "rate": 2000,
       "exit_code": 0,
       "consumed": 60000,
-      "txn_committed": 147,
-      "throughput_events_per_s": 1991.8,
+      "txn_committed": 148,
+      "throughput_events_per_s": 1988.3,
       "e2e_latency_ms": {
         "samples": 60000,
-        "p50": 219,
-        "p95": 338,
-        "p99": 457,
-        "max": 540
+        "p50": 210,
+        "p95": 302,
+        "p99": 311,
+        "max": 330
       },
-      "max_consumer_lag": 904,
-      "lag_samples": 144
+      "max_consumer_lag": 612,
+      "lag_samples": 145
     },
     {
       "phase": "backlog",
@@ -87,17 +87,17 @@
       "rate": null,
       "exit_code": 0,
       "consumed": 200000,
-      "txn_committed": 405,
-      "throughput_events_per_s": 3881.6,
+      "txn_committed": 400,
+      "throughput_events_per_s": 4088.8,
       "e2e_latency_ms": {
         "samples": 200000,
-        "p50": 25215,
-        "p95": 49587,
-        "p99": 51728,
-        "max": 52293
+        "p50": 24614,
+        "p95": 47086,
+        "p99": 49156,
+        "max": 49663
       },
       "max_consumer_lag": 199000,
-      "lag_samples": 216
+      "lag_samples": 205
     },
     {
       "phase": "paced",
@@ -106,16 +106,16 @@
       "rate": 2000,
       "exit_code": 0,
       "consumed": 60000,
-      "txn_committed": 148,
-      "throughput_events_per_s": 1992.0,
+      "txn_committed": 147,
+      "throughput_events_per_s": 1992.1,
       "e2e_latency_ms": {
         "samples": 60000,
-        "p50": 209,
-        "p95": 302,
-        "p99": 311,
-        "max": 345
+        "p50": 212,
+        "p95": 304,
+        "p99": 318,
+        "max": 385
       },
-      "max_consumer_lag": 609,
+      "max_consumer_lag": 671,
       "lag_samples": 145
     },
     {
@@ -125,17 +125,17 @@
       "rate": null,
       "exit_code": 0,
       "consumed": 200000,
-      "txn_committed": 400,
-      "throughput_events_per_s": 4075.8,
+      "txn_committed": 402,
+      "throughput_events_per_s": 4005.0,
       "e2e_latency_ms": {
         "samples": 200000,
-        "p50": 23818,
-        "p95": 46673,
-        "p99": 48796,
-        "max": 49311
+        "p50": 24087,
+        "p95": 47677,
+        "p99": 49763,
+        "max": 50287
       },
-      "max_consumer_lag": 198500,
-      "lag_samples": 206
+      "max_consumer_lag": 199000,
+      "lag_samples": 210
     },
     {
       "phase": "paced",
@@ -144,39 +144,39 @@
       "rate": 2000,
       "exit_code": 0,
       "consumed": 60000,
-      "txn_committed": 148,
-      "throughput_events_per_s": 1992.2,
+      "txn_committed": 147,
+      "throughput_events_per_s": 1992.0,
       "e2e_latency_ms": {
         "samples": 60000,
-        "p50": 209,
-        "p95": 301,
-        "p99": 310,
-        "max": 325
+        "p50": 212,
+        "p95": 304,
+        "p99": 316,
+        "max": 367
       },
-      "max_consumer_lag": 608,
+      "max_consumer_lag": 618,
       "lag_samples": 145
     }
   ],
   "aggregate": {
     "backlog": {
       "throughput_events_per_s": {
-        "min": 3881.6,
-        "median": 4075.8,
-        "max": 4083.2
+        "min": 4005.0,
+        "median": 4063.7,
+        "max": 4088.8
       },
-      "p50_ms_median": 24044,
-      "p99_ms_median": 48796,
+      "p50_ms_median": 24087,
+      "p99_ms_median": 49156,
       "max_lag_max": 199000
     },
     "paced": {
       "throughput_events_per_s": {
-        "min": 1991.8,
+        "min": 1988.3,
         "median": 1992.0,
-        "max": 1992.2
+        "max": 1992.1
       },
-      "p50_ms_median": 209,
-      "p99_ms_median": 311,
-      "max_lag_max": 904
+      "p50_ms_median": 212,
+      "p99_ms_median": 316,
+      "max_lag_max": 671
     }
   }
 }
