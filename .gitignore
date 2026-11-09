@@ -11,3 +11,5 @@ legacy/.bsp/
 .vscode/
 /build/
 /run/
+# raw per-run dumps (large, regenerable); summaries/logs under reports/ are committed
+reports/**/*.jsonl
