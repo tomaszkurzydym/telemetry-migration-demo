@@ -1,7 +1,7 @@
 //! Field-level AES-256-GCM encryption of vehicle location (contract §5).
 //!
 //! Wire format: `{"ciphertext": b64(ct || tag), "nonce": b64(12 bytes), "key_id": "..."}`.
-//! AAD binds each ciphertext to its record: `telemetry.location.v1|<vin>|<event_id>`.
+//! AAD binds each ciphertext to its record: `telemetry.location.v2|<vin byte length>|<vin>|<event_id>`.
 
 use aes_gcm::aead::{Aead, AeadCore, KeyInit, OsRng, Payload};
 use aes_gcm::{Aes256Gcm, Nonce};
@@ -14,7 +14,7 @@ use std::fmt;
 pub const KEY_ENV: &str = "LOCATION_ENC_KEY";
 pub const KEY_ID_ENV: &str = "LOCATION_ENC_KEY_ID";
 pub const DEFAULT_KEY_ID: &str = "local-dev-1";
-pub const AAD_PREFIX: &str = "telemetry.location.v1";
+pub const AAD_PREFIX: &str = "telemetry.location.v2";
 pub const NONCE_LEN: usize = 12;
 pub const TAG_LEN: usize = 16;
 
@@ -127,7 +127,7 @@ impl LocationCipher {
 }
 
 pub fn aad(vin: &str, event_id: &str) -> Vec<u8> {
-    format!("{AAD_PREFIX}|{vin}|{event_id}").into_bytes()
+    format!("{AAD_PREFIX}|{}|{vin}|{event_id}", vin.len()).into_bytes()
 }
 
 fn plaintext(loc: &Location) -> Vec<u8> {
@@ -338,6 +338,17 @@ mod tests {
         );
         assert_eq!(
             decrypt_location(&c, "SYN-VIN-0001", "evt-2", &enc),
+            Err(CryptoError::AuthenticationFailed)
+        );
+    }
+
+    #[test]
+    fn aad_unambiguous_when_ids_contain_separator() {
+        assert_ne!(aad("a|b", "c"), aad("a", "b|c"));
+        let c = cipher();
+        let enc = encrypt_location(&c, "a|b", "c", &loc()).unwrap();
+        assert_eq!(
+            decrypt_location(&c, "a", "b|c", &enc),
             Err(CryptoError::AuthenticationFailed)
         );
     }

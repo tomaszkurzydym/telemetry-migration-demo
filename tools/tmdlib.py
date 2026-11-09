@@ -11,7 +11,7 @@ from pathlib import Path
 
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
-AAD_PREFIX = "telemetry.location.v1"
+AAD_PREFIX = "telemetry.location.v2"
 OUTPUT_KEYS = {"schema_v", "vin", "event_id", "event_time", "soc_pct", "pack_voltage_v", "pack_temp_k",
                "cell_delta_mv", "firmware", "out_of_order"}
 FORBIDDEN_KEYS = {"location", "lat", "lon", "latitude", "longitude", "ts_ms", "pack_temp_c"}
@@ -45,7 +45,7 @@ def decrypt_location(key: bytes, vin: str, event_id: str, enc: dict) -> dict:
     if len(nonce) != 12:
         raise ValueError("nonce must be 12 bytes")
     ct = base64.b64decode(enc["ciphertext"], validate=True)
-    pt = AESGCM(key).decrypt(nonce, ct, f"{AAD_PREFIX}|{vin}|{event_id}".encode())
+    pt = AESGCM(key).decrypt(nonce, ct, f"{AAD_PREFIX}|{len(vin.encode())}|{vin}|{event_id}".encode())
     obj = json.loads(pt, parse_float=Decimal, parse_int=Decimal)
     if set(obj) != {"lat", "lon"}:
         raise ValueError("unexpected plaintext shape")

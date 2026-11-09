@@ -101,7 +101,9 @@ pack_voltage_v, pack_temp_k, cell_delta_mv, firmware, out_of_order` plus `locati
   is a label only and contains no key material.
 - Plaintext: UTF-8 JSON object `{"lat":<number>,"lon":<number>}` holding the input decimal values. Byte-level formatting
   may differ between implementations; consumers compare the recovered values numerically.
-- Associated data (AAD): UTF-8 `telemetry.location.v1|<vin>|<event_id>`, which ties a ciphertext to its record.
+- Associated data (AAD): UTF-8 `telemetry.location.v2|<n>|<vin>|<event_id>`, where `<n>` is the decimal UTF-8 byte
+  length of `<vin>`. It ties a ciphertext to its record; the length prefix keeps the encoding unambiguous when an
+  identifier contains `|`.
   A ciphertext copied into another record fails authentication.
 - Wire format:
   ```json
