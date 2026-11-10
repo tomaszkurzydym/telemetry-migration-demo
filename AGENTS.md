@@ -65,6 +65,10 @@ processing behaviour, crypto, the contract or the tools, and update `docs/EVIDEN
 - Learned on that port: never call `fetch_watermarks` from the consume loop (ListOffsets queues behind fetches and
   stalls processing); measure lag on a separate client. A corrected rule that rejects earlier in the validation
   order changes the *error code* of later-failing records too; the comparator must attribute those to the defect.
+- `old-jobs/ota-updates`: Kafka `ota.events.raw` → Postgres `vehicle_ota_status` (same `service-db`) + quarantine
+  topic `ota.events.quarantine`. `session_token` is sensitive and must never reach the database, quarantine or logs.
+  Setup: `scripts/ota_topics.sh --reset`, then `.venv/bin/python generator/ota_generate.py --seed 42 --events 20000`
+  and `old-jobs/ota-updates/run.sh`. Not migrated yet.
 
 ## Skills (`.agents/skills/`)
 

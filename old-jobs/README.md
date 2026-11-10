@@ -7,3 +7,4 @@ in `../migrated/<job>/`. See `../AGENTS.md` ("Old jobs and migrations") and
 | Job | Stack | Input | Output |
 |---|---|---|---|
 | [`maintenance-sync/`](maintenance-sync/) | Scala 2.12 / Spark 3.5 Structured Streaming | Kafka `maintenance.events.raw` | Postgres `service_records` + Kafka `maintenance.events.quarantine` |
+| [`ota-updates/`](ota-updates/) | Scala 2.12 / Spark 3.5 Structured Streaming | Kafka `ota.events.raw` | Postgres `vehicle_ota_status` + Kafka `ota.events.quarantine` |
