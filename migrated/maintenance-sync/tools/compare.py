@@ -130,8 +130,8 @@ def main() -> int:
         for x, o in events:
             if r and corrected_row(o) == rrow:
                 continue
-            if winner and (o.get("ts_ms"), x["offset"]) < (winner[1]["ts_ms"], winner[0]["offset"]) \
-                    and x["partition"] == winner[0]["partition"]:
+            if winner and isinstance(o.get("ts_ms"), Decimal) and x["partition"] == winner[0]["partition"] \
+                    and (o["ts_ms"], x["offset"]) < (winner[1]["ts_ms"], winner[0]["offset"]):
                 continue
             if (x["partition"], x["offset"]) not in rq:
                 return False
