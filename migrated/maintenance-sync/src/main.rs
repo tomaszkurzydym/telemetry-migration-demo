@@ -73,7 +73,8 @@ impl Config {
 }
 
 enum Event {
-    Assigned(Vec<(i32, i64)>),
+    /// (partition, start offset, stored offset) from one snapshot of the offsets table.
+    Assigned(Vec<(i32, i64, Option<i64>)>),
     Revoked,
     DataLoss(String),
     Fatal(String),
@@ -94,7 +95,7 @@ impl Ctx {
         &self,
         c: &BaseConsumer<Self>,
         tpl: &TopicPartitionList,
-    ) -> Result<Vec<(i32, i64)>, Event> {
+    ) -> Result<Vec<(i32, i64, Option<i64>)>, Event> {
         let mut client = self
             .db
             .connect()
@@ -116,7 +117,7 @@ impl Ctx {
                 Some(&s) => s,
                 None => low,
             };
-            out.push((p, start));
+            out.push((p, start, stored.get(&p).copied()));
         }
         Ok(out)
     }
@@ -129,7 +130,7 @@ impl ConsumerContext for Ctx {
                 match self.start_offsets(c, tpl) {
                     Ok(starts) => {
                         let mut a = TopicPartitionList::new();
-                        for &(p, o) in &starts {
+                        for &(p, o, _) in &starts {
                             let _ = a.add_partition_offset(&self.topic, p, Offset::Offset(o));
                         }
                         match c.assign(&a) {
@@ -300,12 +301,11 @@ fn run(cfg: Config, db_cfg: DbConfig) -> Result<(), u8> {
                 }
                 Event::Assigned(starts) => {
                     m.rebalances.inc();
-                    let mut c = db_cfg.connect().map_err(|e| fatal("db connect", &e))?;
-                    let s = db::load_offsets(&mut c, &cfg.group, &cfg.input)
-                        .map_err(|e| fatal("load offsets", &e))?;
-                    for (p, o) in &starts {
-                        next.insert(*p, *o);
-                        stored.insert(*p, s.get(p).copied());
+                    // The CAS expectation must be the snapshot the start offsets came from: if another writer
+                    // committed since, the next transaction is fenced instead of moving its position backwards.
+                    for &(p, o, s) in &starts {
+                        next.insert(p, o);
+                        stored.insert(p, s);
                     }
                     info!("assigned partitions at stored positions: {starts:?}");
                     m.assigned_partitions.set(next.len() as i64);
