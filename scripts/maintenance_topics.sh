@@ -15,7 +15,8 @@ if [[ "${1:-}" == "--reset" ]]; then
     [[ "$left" == "0" ]] && break
     sleep 1
   done
-  rm -rf old-jobs/maintenance-sync/target/checkpoints
+  # CHECKPOINT_DIR is resolved relative to the job directory, as in run.sh.
+  (cd old-jobs/maintenance-sync && rm -rf "${CHECKPOINT_DIR:-target/checkpoints/maintenance-sync}")
   docker exec tmd-service-db sh -c 'psql -q -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "TRUNCATE service_records"'
 fi
 for t in "${TOPICS[@]}"; do
