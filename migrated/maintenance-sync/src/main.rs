@@ -14,7 +14,7 @@ use rdkafka::types::RDKafkaRespErr;
 use rdkafka::{ClientContext, Offset, TopicPartitionList};
 use std::collections::{BTreeMap, HashMap};
 use std::process::ExitCode;
-use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicI64, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
@@ -269,6 +269,10 @@ fn run(cfg: Config, db_cfg: DbConfig) -> Result<(), u8> {
     let mut buf = Buffer::default();
     let mut last_msg = Instant::now();
     let mut last_lag = Instant::now();
+    let positions: Positions = Arc::new(Mutex::new(HashMap::new()));
+    let lag_total = Arc::new(AtomicI64::new(-1));
+    spawn_lag_monitor(&cfg, positions.clone(), lag_total.clone(), m.clone())
+        .map_err(|e| fatal("lag monitor", &e))?;
     let mut totals: BTreeMap<&str, u64> = BTreeMap::new();
 
     loop {
@@ -372,21 +376,13 @@ fn run(cfg: Config, db_cfg: DbConfig) -> Result<(), u8> {
 
         if last_lag.elapsed() >= Duration::from_secs(1) {
             last_lag = Instant::now();
-            let mut all_zero = !next.is_empty();
-            for (&p, &n) in &next {
-                let lag = match consumer.fetch_watermarks(&cfg.input, p, Duration::from_millis(500))
-                {
-                    Ok((_, high)) => {
-                        (high - stored.get(&p).copied().flatten().unwrap_or(n.min(high))).max(0)
-                    }
-                    Err(_) => -1,
-                };
-                m.consumer_lag.with_label_values(&[&p.to_string()]).set(lag);
-                all_zero &= lag == 0 && n >= 0;
-            }
+            *positions.lock().unwrap() = next
+                .iter()
+                .map(|(&p, &n)| (p, stored.get(&p).copied().flatten().unwrap_or(n)))
+                .collect();
             let idle = cfg.idle_exit_secs > 0
                 && last_msg.elapsed() >= Duration::from_secs(cfg.idle_exit_secs);
-            if idle && all_zero && buf.since.is_none() {
+            if idle && lag_total.load(Ordering::Relaxed) == 0 && buf.since.is_none() {
                 info!("idle with zero lag for {}s: exiting", cfg.idle_exit_secs);
                 break;
             }
@@ -396,6 +392,47 @@ fn run(cfg: Config, db_cfg: DbConfig) -> Result<(), u8> {
         }
     }
     info!("summary {}", serde_json::to_string(&totals).unwrap());
+    Ok(())
+}
+
+/// Stored (or start) position per owned partition, published by the processing loop.
+type Positions = Arc<Mutex<HashMap<i32, i64>>>;
+
+/// Lag = high watermark - stored position, measured on a separate client so the blocking
+/// ListOffsets round-trips never stall the processing loop's fetches.
+fn spawn_lag_monitor(
+    cfg: &Config,
+    positions: Positions,
+    total: Arc<AtomicI64>,
+    m: Arc<Metrics>,
+) -> Result<(), KafkaError> {
+    let c: BaseConsumer = ClientConfig::new()
+        .set("bootstrap.servers", &cfg.bootstrap)
+        .set("group.id", format!("{}-lag-monitor", cfg.group))
+        .create()?;
+    let topic = cfg.input.clone();
+    std::thread::spawn(move || loop {
+        let snapshot: Vec<(i32, i64)> = positions
+            .lock()
+            .unwrap()
+            .iter()
+            .map(|(&p, &o)| (p, o))
+            .collect();
+        let mut sum = 0;
+        let mut ok = !snapshot.is_empty();
+        for (p, off) in snapshot {
+            match c.fetch_watermarks(&topic, p, Duration::from_secs(5)) {
+                Ok((_, hi)) => {
+                    let lag = (hi - off).max(0);
+                    m.consumer_lag.with_label_values(&[&p.to_string()]).set(lag);
+                    sum += lag;
+                }
+                Err(_) => ok = false,
+            }
+        }
+        total.store(if ok { sum } else { -1 }, Ordering::Relaxed);
+        std::thread::sleep(Duration::from_millis(500));
+    });
     Ok(())
 }
 
