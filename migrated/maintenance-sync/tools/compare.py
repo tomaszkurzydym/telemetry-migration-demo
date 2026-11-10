@@ -38,6 +38,14 @@ def mile_reading(raw_value: str):
     return None
 
 
+def decimal_obj(raw_value: str):
+    try:
+        o = json.loads(raw_value, parse_float=Decimal, parse_int=Decimal)
+    except (ValueError, InvalidOperation):
+        return None
+    return o if isinstance(o, dict) else None
+
+
 def m1_range_shift(o) -> bool:
     """Legacy accepts (×1.6 within range), contract rejects (×1.609344 out of range)."""
     x = o["odometer"]
@@ -56,6 +64,24 @@ def payload_matches_raw(q, rawrec) -> bool:
         return rawrec is not None and json.loads(q["payload"]) == redact(json.loads(rawrec["value"]))
     except ValueError:
         return False
+
+
+CTRL_AND_SPACE = "".join(chr(i) for i in range(33))
+
+
+def corrected_row(o):
+    """Contract §5 row fields for a raw event object (Decimal-parsed) with the corrected factor; None if not derivable.
+    Used only to check that an M1-explained Rust row really is some event of the work order."""
+    try:
+        unit = o["odometer_unit"]
+        return {"vin": o["vin"], "status": o["status"], "service_center_id": o["service_center_id"],
+                "event_time_ms": int(o["ts_ms"]),
+                "odometer_km": str(km(o["odometer"], "1.609344" if unit == "mi" else "1")),
+                "dtc_codes": sorted({c.strip(CTRL_AND_SPACE).upper() for c in o.get("dtc_codes") or []}),
+                "parts_count": int(sum(x["qty"] for x in o.get("parts") or [])),
+                "labor_min": None if o.get("labor_min") is None else int(o["labor_min"])}
+    except (KeyError, TypeError, ValueError, AttributeError, InvalidOperation):
+        return None
 
 
 def main() -> int:
@@ -85,13 +111,31 @@ def main() -> int:
                          "legacy_q": len(lq), "rust_q": len(rq)})
 
     def row_diff_explained(wo, l, r) -> bool:
-        miles = [m for m in (mile_reading(x["value"]) for x in by_wo.get(wo, [])) if m is not None]
+        events = [(x, o) for x, o in ((x, mile_reading(x["value"]) or decimal_obj(x["value"])) for x in by_wo.get(wo, []))
+                  if o is not None]
+        miles = [o for _, o in events if o.get("odometer_unit") == "mi" and isinstance(o.get("odometer"), Decimal)]
         if l and r and all(l[f] == r[f] for f in FIELDS if f != "odometer_km"):
             # Same winning event; only the conversion differs.
             return any(m.get("ts_ms") == l["event_time_ms"] and str(km(m["odometer"], "1.6")) == l["odometer_km"]
                        and str(km(m["odometer"], "1.609344")) == r["odometer_km"] for m in miles)
-        # Different winner or missing row: some mile event of this work order is in the shifted range.
-        return any(m1_range_shift(m) for m in miles)
+        # Different winner or no Rust row. Legacy's winner must be a mile reading the corrected factor rejects ...
+        if not l or not any(m1_range_shift(m) and m.get("ts_ms") == l["event_time_ms"]
+                            and str(km(m["odometer"], "1.6")) == l["odometer_km"] for m in miles):
+            return False
+        # ... and every event that would beat Rust's row must have been quarantined by Rust.
+        rrow = r and {f: r[f] for f in FIELDS}
+        winner = next(((x, o) for x, o in events if rrow and corrected_row(o) == rrow), None)
+        if r and winner is None:
+            return False
+        for x, o in events:
+            if r and corrected_row(o) == rrow:
+                continue
+            if winner and (o.get("ts_ms"), x["offset"]) < (winner[1]["ts_ms"], winner[0]["offset"]) \
+                    and x["partition"] == winner[0]["partition"]:
+                continue
+            if (x["partition"], x["offset"]) not in rq:
+                return False
+        return True
 
     for wo in sorted(set(ldb) | set(rdb)):
         l, r = ldb.get(wo), rdb.get(wo)
@@ -106,15 +150,16 @@ def main() -> int:
 
     for src in sorted(set(lq) | set(rq)):
         l, r = lq.get(src), rq.get(src)
+        rawrec = raw_by_src.get(src)
+        if r and not r["payload"].startswith("[MALFORMED") and not payload_matches_raw(r, rawrec):
+            problems.append({"kind": "QUARANTINE_PAYLOAD_NOT_REDACTED_SOURCE", "source": list(src)})
+            continue
         if l and r and all(l[k] == r[k] for k in ["error_code", "work_order_id", "vin"]) and \
                 (l["payload"] == r["payload"] or json.loads(l["payload"]) == json.loads(r["payload"])
                  if not l["payload"].startswith("[MALFORMED") else l["payload"] == r["payload"]):
             continue
-        rawrec = raw_by_src.get(src)
         m = mile_reading(rawrec["value"]) if rawrec else None
-        if r and not payload_matches_raw(r, rawrec) and not r["payload"].startswith("[MALFORMED"):
-            problems.append({"kind": "QUARANTINE_PAYLOAD_NOT_REDACTED_SOURCE", "source": list(src)})
-        elif l is None and r and r["error_code"] == "INVALID_ODOMETER" and m and m1_range_shift(m):
+        if l is None and r and r["error_code"] == "INVALID_ODOMETER" and m and m1_range_shift(m):
             explained["DEFECT-M1:QUARANTINE_EXTRA_IN_RUST"] += 1
         elif l and r and r["error_code"] == "INVALID_ODOMETER" and l["error_code"] in LATER_THAN_ODOMETER \
                 and (l["work_order_id"], l["vin"]) == (r["work_order_id"], r["vin"]) and m and m1_range_shift(m):

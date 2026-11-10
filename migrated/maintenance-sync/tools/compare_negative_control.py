@@ -33,7 +33,23 @@ def edit_q(lines, f, j=None):
     lines = list(lines); lines[j] = json.dumps(r); return lines
 
 
+ldb = {json.loads(l)["work_order_id"]: json.loads(l) for l in files["legacy-db"]}
+moved = next(j for j, l in enumerate(files["rust-db"]) if (lambda r: r["work_order_id"] in ldb
+             and ldb[r["work_order_id"]]["event_time_ms"] != r["event_time_ms"])(json.loads(l)))
+
+
+def both_q(f):
+    out = {}
+    for k in ["legacy-q", "rust-q"]:
+        j = next(n for n, l in enumerate(files[k]) if qsrc(l) == qsrc(files["rust-q"][both]))
+        out[k] = edit_q(files[k], f, j)
+    return out
+
+
 cases = {
+    "defect_m1_winner_row_changed": {"rust-db": (lambda ls: ls[:moved] + [json.dumps({**json.loads(ls[moved]),
+                                     "parts_count": json.loads(ls[moved])["parts_count"] + 1})] + ls[moved + 1:])(files["rust-db"])},
+    "both_payloads_corrupt": both_q(lambda q: q.update(payload='{"work_order_id":"WO-00000000"}')),
     "row_field_changed": {"rust-db": edit_row(files["rust-db"], lambda r: r.update(parts_count=r["parts_count"] + 1))},
     "row_missing": {"rust-db": files["rust-db"][:i] + files["rust-db"][i + 1:]},
     "row_extra": {"rust-db": files["rust-db"] + [json.dumps({**json.loads(files["rust-db"][i]), "work_order_id": "WO-99999999"})]},
