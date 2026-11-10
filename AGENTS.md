@@ -48,6 +48,19 @@ processing behaviour, crypto, the contract or the tools, and update `docs/EVIDEN
 - Use a different `--run` name for ad-hoc runs (e.g. `demo`) so committed `reports/*-seed42.json` are not overwritten.
 - Raw dumps under `run/` contain synthetic plaintext input and are git-ignored; keep them out of commits.
 
+## Old jobs and migrations
+
+- `old-jobs/<job>/` holds legacy jobs awaiting migration. Treat them as legacy: do not change their behaviour;
+  pin it with characterization tests. Known defects are labelled `DEFECT-<X>n` in code and tests.
+- A port of `old-jobs/<job>/` goes in `migrated/<job>/` as a self-contained project (code, contract, fixtures,
+  tests, README, evidence), built with the `migrate-streaming-job` skill. A port in shadow never writes to the
+  legacy job's topics or tables.
+- `old-jobs/maintenance-sync`: Kafka `maintenance.events.raw` → Postgres `service_records` (compose service
+  `service-db`, container `tmd-service-db`) + quarantine topic `maintenance.events.quarantine`.
+  `technician_notes` is free text and must never reach the database, quarantine or logs.
+  Setup: `docker compose up -d kafka service-db && scripts/maintenance_topics.sh --reset`, then
+  `.venv/bin/python generator/maintenance_generate.py --seed 42 --events 20000` and `old-jobs/maintenance-sync/run.sh`.
+
 ## Skills (`.agents/skills/`)
 
 | Skill | Use when |

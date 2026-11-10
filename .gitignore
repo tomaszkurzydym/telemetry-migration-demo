@@ -13,3 +13,8 @@ legacy/.bsp/
 /run/
 # raw per-run dumps (large, regenerable); summaries/logs under reports/ are committed
 reports/**/*.jsonl
+old-jobs/*/target/
+old-jobs/*/project/target/
+old-jobs/*/project/project/
+old-jobs/*/.bsp/
+migrated/*/target/
