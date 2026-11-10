@@ -11,6 +11,9 @@ Everything in this repository is synthetic and was written for this demonstratio
 - **Locations**: every coordinate is generated at random inside a box of open ocean in the mid-Atlantic
   (lat 10–11°N, lon 29–30°W), or computed from a formula in test fixtures. No coordinate corresponds to a real
   vehicle, person, or address.
+- **Maintenance data**: work orders (`WO-NNNNNNNN`), service centers (`SC-NNN`), part numbers (`PN-XXXXXX`),
+  fault codes and technician notes (`SYN-NOTE-NNNNNN ...`) used by `old-jobs/maintenance-sync` all come from
+  `generator/maintenance_generate.py`. No real service records exist anywhere in this repository.
 - **Keys**: no encryption key is committed. Tests generate random keys at runtime, and local runs read
   `LOCATION_ENC_KEY` from a git-ignored `.env`.
 

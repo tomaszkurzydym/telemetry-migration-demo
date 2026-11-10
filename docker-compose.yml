@@ -31,6 +31,26 @@ services:
       timeout: 10s
       retries: 30
 
+  # Service database for old-jobs/maintenance-sync (synthetic data only). Refuses to start without
+  # SERVICE_DB_PASSWORD from .env; the schema is applied on first start of an empty volume.
+  service-db:
+    image: postgres:16.6
+    container_name: tmd-service-db
+    ports:
+      - "127.0.0.1:5432:5432"
+    environment:
+      POSTGRES_DB: ${SERVICE_DB_NAME:-service_db}
+      POSTGRES_USER: ${SERVICE_DB_USER:-service}
+      POSTGRES_PASSWORD: ${SERVICE_DB_PASSWORD:-}
+    volumes:
+      - service-db-data:/var/lib/postgresql/data
+      - ./old-jobs/maintenance-sync/sql/schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
   # --- Service stubs (opt-in profiles). The evidence runs in docs/EVIDENCE.md run these components
   # --- as host processes via scripts/; the containers are the packaging path.
   generator:
@@ -58,3 +78,6 @@ services:
     env_file: [.env]
     environment:
       KAFKA_BOOTSTRAP: kafka:29092
+
+volumes:
+  service-db-data:

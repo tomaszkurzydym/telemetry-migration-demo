@@ -18,6 +18,8 @@ field-level **AES-256-GCM** encryption of vehicle location. The Rust port runs i
 | `legacy/` | Spark job (incl. intentional DEFECT-1) + characterization tests |
 | `rust-processor/` | Rust processor: rdkafka, transactions, Prometheus `/metrics`, `crypto.rs` |
 | `tools/` | Shadow comparator, contract verifier, privacy audit, decrypting consumer, fault injection, benchmark |
+| `old-jobs/` | Legacy jobs awaiting migration: `maintenance-sync` (Spark → Postgres service database) |
+| `migrated/` | Destination for ports of `old-jobs/` (empty until a migration is run) |
 | `k8s/` | Manifests validated with `kubectl apply --dry-run` only — production follow-up |
 
 ## Quick start
