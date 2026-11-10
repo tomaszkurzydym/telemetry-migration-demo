@@ -38,6 +38,7 @@ INVALID_CODES = ["MISSING_REQUIRED_FIELD", "KEY_MISMATCH", "INVALID_CAMPAIGN", "
                  "INVALID_STATE", "INVALID_VERSION", "INVALID_PACKAGE_HASH", "INVALID_PROGRESS",
                  "INVALID_FAILURE_CODE"]
 PRE_DOWNGRADE_CODES = 7  # INVALID_CODES before this index are checked ahead of the version-order guard
+MAX_VINS = 9999  # SYN-VIN-NNNN
 FINAL = {"SUCCEEDED", "ROLLED_BACK"}
 
 
@@ -141,6 +142,8 @@ def _invalidate(rng: random.Random, f: list[tuple[str, str]], code: str) -> tupl
 
 
 def generate_events(seed: int, events: int, vins: int = 1000) -> list[Event]:
+    if not 1 <= vins <= MAX_VINS:
+        raise ValueError(f"vins must be 1..{MAX_VINS}")
     rng = random.Random(seed)
     vin_ids = [f"SYN-VIN-{i:04d}" for i in range(1, vins + 1)]
     clock = {v: BASE_TS_MS + rng.randint(0, 3_600_000) for v in vin_ids}
@@ -216,6 +219,8 @@ def main() -> int:
     ap.add_argument("--topic", default=RAW_TOPIC)
     ap.add_argument("--bootstrap", default=os.environ.get("KAFKA_BOOTSTRAP", "localhost:9092"))
     args = ap.parse_args()
+    if not 1 <= args.vins <= MAX_VINS:
+        ap.error(f"--vins must be 1..{MAX_VINS} (synthetic VINs are SYN-VIN-NNNN)")
 
     from confluent_kafka import Producer
 
