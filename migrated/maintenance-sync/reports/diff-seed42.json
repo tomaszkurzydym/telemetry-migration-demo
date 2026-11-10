@@ -12,16 +12,16 @@
   "rust_records": 1322,
   "rust_unique": 1322,
   "rust_by_code": {
-   "INVALID_ODOMETER": 312,
-   "MALFORMED_JSON": 184,
-   "MISSING_REQUIRED_FIELD": 89,
    "INVALID_DTC": 80,
    "INVALID_UNIT": 86,
-   "INVALID_WORK_ORDER": 94,
-   "INVALID_TS": 89,
    "INVALID_PARTS": 74,
-   "KEY_MISMATCH": 86,
+   "MALFORMED_JSON": 184,
    "INVALID_STATUS": 73,
+   "INVALID_ODOMETER": 312,
+   "INVALID_TS": 89,
+   "MISSING_REQUIRED_FIELD": 89,
+   "INVALID_WORK_ORDER": 94,
+   "KEY_MISMATCH": 86,
    "INVALID_LABOR": 78,
    "INVALID_SERVICE_CENTER": 77
   }
@@ -34,5 +34,5 @@
  },
  "unexplained": 0,
  "problems": [],
- "code_version": "52e5e48"
+ "code_version": "8a63005"
 }

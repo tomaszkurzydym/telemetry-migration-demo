@@ -8,5 +8,5 @@
  "stored_offset_after": 300,
  "rows_after": 126,
  "log": "FATAL data loss: partition 0: stored offset 300 < earliest available 350; refusing to continue (contract \u00a78)",
- "code_version": "52e5e48"
+ "code_version": "8a63005"
 }

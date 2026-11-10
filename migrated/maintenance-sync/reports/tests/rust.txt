@@ -1,12 +1,11 @@
-    Finished `release` profile [optimized] target(s) in 0.06s
-   Compiling maintenance-sync v0.1.0 (/home/ubuntu/work/telemetry-migration-demo/migrated/maintenance-sync)
-    Finished `release` profile [optimized] target(s) in 0.27s
+    Finished `release` profile [optimized] target(s) in 0.10s
+    Finished `release` profile [optimized] target(s) in 0.08s
      Running unittests src/lib.rs (target/release/deps/maintenance_sync-f6665ceb7708b6bc)
 
 running 3 tests
-test contract::tests::odometer_boundaries ... ok
-test contract::tests::hostile_exponents_do_not_allocate_or_panic ... ok
 test contract::tests::redaction_and_log_line_never_carry_notes ... ok
+test contract::tests::hostile_exponents_do_not_allocate_or_panic ... ok
+test contract::tests::odometer_boundaries ... ok
 
 test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 

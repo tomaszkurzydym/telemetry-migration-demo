@@ -1,8 +1,8 @@
-[2026-11-10T12:31:27.944Z ERROR maintenance_sync] FATAL startup: SERVICE_DB_PASSWORD is not set; refusing to start
+[2026-11-10T12:51:50.621Z ERROR maintenance_sync] FATAL startup: SERVICE_DB_PASSWORD is not set; refusing to start
 rust, no SERVICE_DB_PASSWORD: exit=78
-[2026-11-10T12:31:27.946Z ERROR maintenance_sync] FATAL startup: SERVICE_DB_SHADOW_TABLE=service_records is not allowed; refusing to start
+[2026-11-10T12:51:50.623Z ERROR maintenance_sync] FATAL startup: SERVICE_DB_SHADOW_TABLE=service_records is not allowed; refusing to start
 rust, legacy table as target: exit=78
-[2026-11-10T12:31:27.947Z ERROR maintenance_sync] FATAL startup: MAINTENANCE_SHADOW_QUARANTINE_TOPIC=maintenance.events.quarantine is not allowed; refusing to start
+[2026-11-10T12:51:50.628Z ERROR maintenance_sync] FATAL startup: MAINTENANCE_SHADOW_QUARANTINE_TOPIC=maintenance.events.quarantine is not allowed; refusing to start
 rust, legacy quarantine topic: exit=78
 FATAL startup: SERVICE_DB_PASSWORD is not set; refusing to start
 legacy, no SERVICE_DB_PASSWORD: sbt exit=1
