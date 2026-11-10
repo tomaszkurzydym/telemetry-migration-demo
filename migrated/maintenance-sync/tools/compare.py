@@ -44,6 +44,20 @@ def m1_range_shift(o) -> bool:
     return 0 <= x <= MAX_KM and km(x, "1.6") <= MAX_KM < km(x, "1.609344")
 
 
+def redact(v):
+    if isinstance(v, dict):
+        return {k: "[REDACTED]" if k == "technician_notes" else redact(x) for k, x in v.items()}
+    return [redact(x) for x in v] if isinstance(v, list) else v
+
+
+def payload_matches_raw(q, rawrec) -> bool:
+    """An explained-but-unmatched quarantine record must still carry the correctly redacted source record."""
+    try:
+        return rawrec is not None and json.loads(q["payload"]) == redact(json.loads(rawrec["value"]))
+    except ValueError:
+        return False
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     for a in ["raw", "legacy-db", "rust-db", "legacy-q", "rust-q", "out"]:
@@ -98,7 +112,9 @@ def main() -> int:
             continue
         rawrec = raw_by_src.get(src)
         m = mile_reading(rawrec["value"]) if rawrec else None
-        if l is None and r and r["error_code"] == "INVALID_ODOMETER" and m and m1_range_shift(m):
+        if r and not payload_matches_raw(r, rawrec) and not r["payload"].startswith("[MALFORMED"):
+            problems.append({"kind": "QUARANTINE_PAYLOAD_NOT_REDACTED_SOURCE", "source": list(src)})
+        elif l is None and r and r["error_code"] == "INVALID_ODOMETER" and m and m1_range_shift(m):
             explained["DEFECT-M1:QUARANTINE_EXTRA_IN_RUST"] += 1
         elif l and r and r["error_code"] == "INVALID_ODOMETER" and l["error_code"] in LATER_THAN_ODOMETER \
                 and (l["work_order_id"], l["vin"]) == (r["work_order_id"], r["vin"]) and m and m1_range_shift(m):
