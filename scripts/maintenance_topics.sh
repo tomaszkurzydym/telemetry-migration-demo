@@ -3,6 +3,8 @@
 # empty the service_records table (SYNTHETIC DEMO).
 set -euo pipefail
 cd "$(dirname "$0")/.."
+# Same settings as old-jobs/maintenance-sync/run.sh (e.g. CHECKPOINT_DIR).
+if [ -f .env ]; then set -a; . ./.env; set +a; fi
 KC="docker exec tmd-kafka /opt/kafka/bin"
 BS=localhost:9092
 TOPICS=(maintenance.events.raw maintenance.events.quarantine)
