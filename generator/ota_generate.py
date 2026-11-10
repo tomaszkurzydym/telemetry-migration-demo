@@ -37,6 +37,7 @@ FAILURE_CODES = ["E-101", "E-204", "E-317", "E-450"]
 INVALID_CODES = ["MISSING_REQUIRED_FIELD", "KEY_MISMATCH", "INVALID_CAMPAIGN", "INVALID_TS", "INVALID_ECU",
                  "INVALID_STATE", "INVALID_VERSION", "INVALID_PACKAGE_HASH", "INVALID_PROGRESS",
                  "INVALID_FAILURE_CODE"]
+PRE_DOWNGRADE_CODES = 7  # INVALID_CODES before this index are checked ahead of the version-order guard
 FINAL = {"SUCCEEDED", "ROLLED_BACK"}
 
 
@@ -192,7 +193,8 @@ def generate_events(seed: int, events: int, vins: int = 1000) -> list[Event]:
         clock[v] += rng.randint(1_000, 120_000)
         f = _fields(r, clock[v], state, progress, failure, tok(), rng)
         if rng.random() < 0.05:
-            code = rng.choice(INVALID_CODES)
+            # A rollout the legacy job rejects as a downgrade (DEFECT-O1) never reaches the later checks.
+            code = rng.choice(INVALID_CODES if r.to_version > r.from_version else INVALID_CODES[:PRE_DOWNGRADE_CODES])
             bad, key = _invalidate(rng, f, code)
             out.append(Event(key or v, _obj(bad), f"invalid:{code}"))
             continue
