@@ -45,4 +45,8 @@ old-jobs/maintenance-sync/run.sh
 docker exec tmd-service-db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "select status, count(*) from service_records group by 1"'
 ```
 
+The database lives in the `service-db-data` volume. Postgres sets the password only when it creates an empty
+volume, so after changing `SERVICE_DB_PASSWORD` in `.env` recreate it: `docker compose rm -sf service-db &&
+docker volume rm telemetry-migration-demo_service-db-data && docker compose up -d service-db`.
+
 Tests: `(cd old-jobs/maintenance-sync && sbt -batch test)`.
