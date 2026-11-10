@@ -37,7 +37,7 @@ services:
     image: postgres:16.6
     container_name: tmd-service-db
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     environment:
       POSTGRES_DB: ${SERVICE_DB_NAME:-service_db}
       POSTGRES_USER: ${SERVICE_DB_USER:-service}
