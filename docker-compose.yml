@@ -43,6 +43,7 @@ services:
       POSTGRES_USER: ${SERVICE_DB_USER:-service}
       POSTGRES_PASSWORD: ${SERVICE_DB_PASSWORD:-}
     volumes:
+      - service-db-data:/var/lib/postgresql/data
       - ./old-jobs/maintenance-sync/sql/schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
@@ -77,3 +78,6 @@ services:
     env_file: [.env]
     environment:
       KAFKA_BOOTSTRAP: kafka:29092
+
+volumes:
+  service-db-data:
