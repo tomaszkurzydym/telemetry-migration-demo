@@ -5,4 +5,6 @@ independent fixtures, tests, verification tools and evidence. Each port is built
 `../AGENTS.md` and the `migrate-streaming-job` skill, and runs in shadow (own consumer group, own topics, own
 tables) until a human approves cutover.
 
-Nothing has been migrated yet.
+| Job | Legacy | Port | Status |
+|---|---|---|---|
+| maintenance-sync | `../old-jobs/maintenance-sync/` (Scala/Spark) | [`maintenance-sync/`](maintenance-sync/) (Rust) | shadow; see its `docs/EVIDENCE.md` |

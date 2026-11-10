@@ -46,8 +46,9 @@ except `vin` (check 2). Regexes match the whole string. Duplicate JSON keys: las
 
 `odometer` must be a JSON number, value `d` (exact decimal):
 - `d` ≥ 0 and `d` ≤ 2000000 (raw value, before unit conversion); at most 3 decimal places after removing trailing
-  zeros (`-0` is 0). Exponent notation is allowed (`1.5e2` = 150). Anything else → `INVALID_ODOMETER`,
-  including any exponent, however large or small (e.g. `1e9999999999`, `1e-9999999999`).
+  zeros (`-0` is 0). Exponent notation is allowed (`1.5e2` = 150). Anything else → `INVALID_ODOMETER`. That
+  includes a number whose exponent puts it out of range or past 3 decimals, however extreme the exponent
+  (e.g. `1e9999999999`, `1e-9999999999`); it is never parsed into an unbounded value.
 - `km = d` for `km`; `km = d × 1.609344` for `mi`; then rounded to 1 decimal place, half-up.
 - `km` ≤ 2000000.0, else `INVALID_ODOMETER`. So the largest accepted mile reading is 1242742.415 mi
   (→ 2000000.049… → 2000000.0 km); 1242742.416 mi (→ 2000000.1 km) is rejected.
