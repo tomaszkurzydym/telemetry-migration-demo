@@ -1,0 +1,1163 @@
+{
+ "contract": "migrated/maintenance-sync/docs/contract.md v1",
+ "note": "SYNTHETIC DEMO. Hand-specified from the contract; key/value are the Kafka record. 'legacy' = documented legacy deviation.",
+ "cases": [
+  {
+   "name": "km basic, full optional fields",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":12345.67,\"odometer_unit\":\"km\",\"dtc_codes\":[\" p0a80 \",\"P0A80\",\"b1234\"],\"parts\":[{\"part_no\":\"PN-ABC123\",\"qty\":2},{\"part_no\":\"PN-000001\",\"qty\":3}],\"labor_min\":90,\"technician_notes\":\"SYN-NOTE-000001 checked HV connector torque\"}",
+   "expect": {
+    "row": {
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001",
+     "status": "OPEN",
+     "service_center_id": "SC-001",
+     "event_time_ms": 1700000000000,
+     "odometer_km": "12345.7",
+     "dtc_codes": [
+      "B1234",
+      "P0A80"
+     ],
+     "parts_count": 5,
+     "labor_min": 90
+    }
+   }
+  },
+  {
+   "name": "km half-up 12.25",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":12.25,\"odometer_unit\":\"km\"}",
+   "expect": {
+    "row": {
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001",
+     "status": "OPEN",
+     "service_center_id": "SC-001",
+     "event_time_ms": 1700000000000,
+     "odometer_km": "12.3",
+     "dtc_codes": [],
+     "parts_count": 0,
+     "labor_min": null
+    }
+   }
+  },
+  {
+   "name": "km 0.04 rounds down",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":0.04,\"odometer_unit\":\"km\"}",
+   "expect": {
+    "row": {
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001",
+     "status": "OPEN",
+     "service_center_id": "SC-001",
+     "event_time_ms": 1700000000000,
+     "odometer_km": "0.0",
+     "dtc_codes": [],
+     "parts_count": 0,
+     "labor_min": null
+    }
+   }
+  },
+  {
+   "name": "km negative zero",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":-0,\"odometer_unit\":\"km\"}",
+   "expect": {
+    "row": {
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001",
+     "status": "OPEN",
+     "service_center_id": "SC-001",
+     "event_time_ms": 1700000000000,
+     "odometer_km": "0.0",
+     "dtc_codes": [],
+     "parts_count": 0,
+     "labor_min": null
+    }
+   }
+  },
+  {
+   "name": "km trailing zeros ignored for scale",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":1.2340,\"odometer_unit\":\"km\"}",
+   "expect": {
+    "row": {
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001",
+     "status": "OPEN",
+     "service_center_id": "SC-001",
+     "event_time_ms": 1700000000000,
+     "odometer_km": "1.2",
+     "dtc_codes": [],
+     "parts_count": 0,
+     "labor_min": null
+    }
+   }
+  },
+  {
+   "name": "km exponent notation",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":1.5e2,\"odometer_unit\":\"km\"}",
+   "expect": {
+    "row": {
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001",
+     "status": "OPEN",
+     "service_center_id": "SC-001",
+     "event_time_ms": 1700000000000,
+     "odometer_km": "150.0",
+     "dtc_codes": [],
+     "parts_count": 0,
+     "labor_min": null
+    }
+   }
+  },
+  {
+   "name": "km max 2000000",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":2000000,\"odometer_unit\":\"km\"}",
+   "expect": {
+    "row": {
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001",
+     "status": "OPEN",
+     "service_center_id": "SC-001",
+     "event_time_ms": 1700000000000,
+     "odometer_km": "2000000.0",
+     "dtc_codes": [],
+     "parts_count": 0,
+     "labor_min": null
+    }
+   }
+  },
+  {
+   "name": "km 1999999.95 rounds to max",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":1999999.95,\"odometer_unit\":\"km\"}",
+   "expect": {
+    "row": {
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001",
+     "status": "OPEN",
+     "service_center_id": "SC-001",
+     "event_time_ms": 1700000000000,
+     "odometer_km": "2000000.0",
+     "dtc_codes": [],
+     "parts_count": 0,
+     "labor_min": null
+    }
+   }
+  },
+  {
+   "name": "km above max",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":2000000.001,\"odometer_unit\":\"km\"}",
+   "expect": {
+    "reject": {
+     "error_code": "INVALID_ODOMETER",
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001"
+    }
+   }
+  },
+  {
+   "name": "km 4 decimals",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":1.2345,\"odometer_unit\":\"km\"}",
+   "expect": {
+    "reject": {
+     "error_code": "INVALID_ODOMETER",
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001"
+    }
+   }
+  },
+  {
+   "name": "km negative",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":-1,\"odometer_unit\":\"km\"}",
+   "expect": {
+    "reject": {
+     "error_code": "INVALID_ODOMETER",
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001"
+    }
+   }
+  },
+  {
+   "name": "odometer as string",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":\"100\",\"odometer_unit\":\"km\"}",
+   "expect": {
+    "reject": {
+     "error_code": "INVALID_ODOMETER",
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001"
+    }
+   }
+  },
+  {
+   "name": "huge positive exponent",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":1e9999999999,\"odometer_unit\":\"km\"}",
+   "expect": {
+    "reject": {
+     "error_code": "INVALID_ODOMETER",
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001"
+    }
+   }
+  },
+  {
+   "name": "huge negative exponent",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":1e-9999999999,\"odometer_unit\":\"km\"}",
+   "expect": {
+    "reject": {
+     "error_code": "INVALID_ODOMETER",
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001"
+    }
+   },
+   "legacy": {
+    "defect": "DEFECT-M2",
+    "reject": {
+     "error_code": "MALFORMED_JSON",
+     "work_order_id": null,
+     "vin": null
+    }
+   }
+  },
+  {
+   "name": "mi 100",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"mi\"}",
+   "expect": {
+    "row": {
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001",
+     "status": "OPEN",
+     "service_center_id": "SC-001",
+     "event_time_ms": 1700000000000,
+     "odometer_km": "160.9",
+     "dtc_codes": [],
+     "parts_count": 0,
+     "labor_min": null
+    }
+   },
+   "legacy": {
+    "defect": "DEFECT-M1",
+    "row": {
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001",
+     "status": "OPEN",
+     "service_center_id": "SC-001",
+     "event_time_ms": 1700000000000,
+     "odometer_km": "160.0",
+     "dtc_codes": [],
+     "parts_count": 0,
+     "labor_min": null
+    }
+   }
+  },
+  {
+   "name": "mi 0.05",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":0.05,\"odometer_unit\":\"mi\"}",
+   "expect": {
+    "row": {
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001",
+     "status": "OPEN",
+     "service_center_id": "SC-001",
+     "event_time_ms": 1700000000000,
+     "odometer_km": "0.1",
+     "dtc_codes": [],
+     "parts_count": 0,
+     "labor_min": null
+    }
+   }
+  },
+  {
+   "name": "mi 12.345",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":12.345,\"odometer_unit\":\"mi\"}",
+   "expect": {
+    "row": {
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001",
+     "status": "OPEN",
+     "service_center_id": "SC-001",
+     "event_time_ms": 1700000000000,
+     "odometer_km": "19.9",
+     "dtc_codes": [],
+     "parts_count": 0,
+     "labor_min": null
+    }
+   },
+   "legacy": {
+    "defect": "DEFECT-M1",
+    "row": {
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001",
+     "status": "OPEN",
+     "service_center_id": "SC-001",
+     "event_time_ms": 1700000000000,
+     "odometer_km": "19.8",
+     "dtc_codes": [],
+     "parts_count": 0,
+     "labor_min": null
+    }
+   }
+  },
+  {
+   "name": "mi largest accepted 1242742.415",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":1242742.415,\"odometer_unit\":\"mi\"}",
+   "expect": {
+    "row": {
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001",
+     "status": "OPEN",
+     "service_center_id": "SC-001",
+     "event_time_ms": 1700000000000,
+     "odometer_km": "2000000.0",
+     "dtc_codes": [],
+     "parts_count": 0,
+     "labor_min": null
+    }
+   },
+   "legacy": {
+    "defect": "DEFECT-M1",
+    "row": {
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001",
+     "status": "OPEN",
+     "service_center_id": "SC-001",
+     "event_time_ms": 1700000000000,
+     "odometer_km": "1988387.9",
+     "dtc_codes": [],
+     "parts_count": 0,
+     "labor_min": null
+    }
+   }
+  },
+  {
+   "name": "mi 1242742.416 rejected",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":1242742.416,\"odometer_unit\":\"mi\"}",
+   "expect": {
+    "reject": {
+     "error_code": "INVALID_ODOMETER",
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001"
+    }
+   },
+   "legacy": {
+    "defect": "DEFECT-M1",
+    "row": {
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001",
+     "status": "OPEN",
+     "service_center_id": "SC-001",
+     "event_time_ms": 1700000000000,
+     "odometer_km": "1988387.9",
+     "dtc_codes": [],
+     "parts_count": 0,
+     "labor_min": null
+    }
+   }
+  },
+  {
+   "name": "mi 1250000 rejected",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":1250000,\"odometer_unit\":\"mi\"}",
+   "expect": {
+    "reject": {
+     "error_code": "INVALID_ODOMETER",
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001"
+    }
+   },
+   "legacy": {
+    "defect": "DEFECT-M1",
+    "row": {
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001",
+     "status": "OPEN",
+     "service_center_id": "SC-001",
+     "event_time_ms": 1700000000000,
+     "odometer_km": "2000000.0",
+     "dtc_codes": [],
+     "parts_count": 0,
+     "labor_min": null
+    }
+   }
+  },
+  {
+   "name": "mi raw above 2000000",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":2000001,\"odometer_unit\":\"mi\"}",
+   "expect": {
+    "reject": {
+     "error_code": "INVALID_ODOMETER",
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001"
+    }
+   }
+  },
+  {
+   "name": "dtc null means empty",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\",\"dtc_codes\":null}",
+   "expect": {
+    "row": {
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001",
+     "status": "OPEN",
+     "service_center_id": "SC-001",
+     "event_time_ms": 1700000000000,
+     "odometer_km": "100.0",
+     "dtc_codes": [],
+     "parts_count": 0,
+     "labor_min": null
+    }
+   }
+  },
+  {
+   "name": "parts empty array",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\",\"parts\":[]}",
+   "expect": {
+    "row": {
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001",
+     "status": "OPEN",
+     "service_center_id": "SC-001",
+     "event_time_ms": 1700000000000,
+     "odometer_km": "100.0",
+     "dtc_codes": [],
+     "parts_count": 0,
+     "labor_min": null
+    }
+   }
+  },
+  {
+   "name": "labor max 1440",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\",\"labor_min\":1440}",
+   "expect": {
+    "row": {
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001",
+     "status": "OPEN",
+     "service_center_id": "SC-001",
+     "event_time_ms": 1700000000000,
+     "odometer_km": "100.0",
+     "dtc_codes": [],
+     "parts_count": 0,
+     "labor_min": 1440
+    }
+   }
+  },
+  {
+   "name": "labor null",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\",\"labor_min\":null}",
+   "expect": {
+    "row": {
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001",
+     "status": "OPEN",
+     "service_center_id": "SC-001",
+     "event_time_ms": 1700000000000,
+     "odometer_km": "100.0",
+     "dtc_codes": [],
+     "parts_count": 0,
+     "labor_min": null
+    }
+   }
+  },
+  {
+   "name": "ts max",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":253402300799999,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\"}",
+   "expect": {
+    "row": {
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001",
+     "status": "OPEN",
+     "service_center_id": "SC-001",
+     "event_time_ms": 253402300799999,
+     "odometer_km": "100.0",
+     "dtc_codes": [],
+     "parts_count": 0,
+     "labor_min": null
+    }
+   }
+  },
+  {
+   "name": "ts zero",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":0,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\"}",
+   "expect": {
+    "row": {
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001",
+     "status": "OPEN",
+     "service_center_id": "SC-001",
+     "event_time_ms": 0,
+     "odometer_km": "100.0",
+     "dtc_codes": [],
+     "parts_count": 0,
+     "labor_min": null
+    }
+   }
+  },
+  {
+   "name": "unknown field ignored",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\",\"extra\":{\"a\":1}}",
+   "expect": {
+    "row": {
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001",
+     "status": "OPEN",
+     "service_center_id": "SC-001",
+     "event_time_ms": 1700000000000,
+     "odometer_km": "100.0",
+     "dtc_codes": [],
+     "parts_count": 0,
+     "labor_min": null
+    }
+   }
+  },
+  {
+   "name": "duplicate key, last wins",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"BAD\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\",\"status\":\"OPEN\"}",
+   "expect": {
+    "row": {
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001",
+     "status": "OPEN",
+     "service_center_id": "SC-001",
+     "event_time_ms": 1700000000000,
+     "odometer_km": "100.0",
+     "dtc_codes": [],
+     "parts_count": 0,
+     "labor_min": null
+    }
+   }
+  },
+  {
+   "name": "missing field beats key mismatch",
+   "key": "SYN-VIN-9999",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer_unit\":\"km\"}",
+   "expect": {
+    "reject": {
+     "error_code": "MISSING_REQUIRED_FIELD",
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001"
+    }
+   }
+  },
+  {
+   "name": "required field null",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":null,\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\"}",
+   "expect": {
+    "reject": {
+     "error_code": "MISSING_REQUIRED_FIELD",
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001"
+    }
+   }
+  },
+  {
+   "name": "vin not a string",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":7,\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\"}",
+   "expect": {
+    "reject": {
+     "error_code": "MISSING_REQUIRED_FIELD",
+     "work_order_id": "WO-00000001",
+     "vin": null
+    }
+   }
+  },
+  {
+   "name": "vin empty",
+   "key": "",
+   "value": "{\"vin\":\"\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\"}",
+   "expect": {
+    "reject": {
+     "error_code": "MISSING_REQUIRED_FIELD",
+     "work_order_id": "WO-00000001",
+     "vin": null
+    }
+   }
+  },
+  {
+   "name": "key mismatch beats bad work order",
+   "key": "SYN-VIN-9999",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-1\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\"}",
+   "expect": {
+    "reject": {
+     "error_code": "KEY_MISMATCH",
+     "work_order_id": null,
+     "vin": "SYN-VIN-0001"
+    }
+   }
+  },
+  {
+   "name": "null key",
+   "key": null,
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\"}",
+   "expect": {
+    "reject": {
+     "error_code": "KEY_MISMATCH",
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001"
+    }
+   }
+  },
+  {
+   "name": "work order too short",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-1\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\"}",
+   "expect": {
+    "reject": {
+     "error_code": "INVALID_WORK_ORDER",
+     "work_order_id": null,
+     "vin": "SYN-VIN-0001"
+    }
+   }
+  },
+  {
+   "name": "work order not a string",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":1,\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\"}",
+   "expect": {
+    "reject": {
+     "error_code": "INVALID_WORK_ORDER",
+     "work_order_id": null,
+     "vin": "SYN-VIN-0001"
+    }
+   }
+  },
+  {
+   "name": "ts decimal literal",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1.0,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\"}",
+   "expect": {
+    "reject": {
+     "error_code": "INVALID_TS",
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001"
+    }
+   }
+  },
+  {
+   "name": "ts exponent literal",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1e3,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\"}",
+   "expect": {
+    "reject": {
+     "error_code": "INVALID_TS",
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001"
+    }
+   }
+  },
+  {
+   "name": "ts negative",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":-1,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\"}",
+   "expect": {
+    "reject": {
+     "error_code": "INVALID_TS",
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001"
+    }
+   }
+  },
+  {
+   "name": "ts above max",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":253402300800000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\"}",
+   "expect": {
+    "reject": {
+     "error_code": "INVALID_TS",
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001"
+    }
+   }
+  },
+  {
+   "name": "status lower case",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"open\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\"}",
+   "expect": {
+    "reject": {
+     "error_code": "INVALID_STATUS",
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001"
+    }
+   }
+  },
+  {
+   "name": "service center empty string",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"\",\"odometer\":100,\"odometer_unit\":\"km\"}",
+   "expect": {
+    "reject": {
+     "error_code": "INVALID_SERVICE_CENTER",
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001"
+    }
+   }
+  },
+  {
+   "name": "service center 4 digits",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-0001\",\"odometer\":100,\"odometer_unit\":\"km\"}",
+   "expect": {
+    "reject": {
+     "error_code": "INVALID_SERVICE_CENTER",
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001"
+    }
+   }
+  },
+  {
+   "name": "unit upper case",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"KM\"}",
+   "expect": {
+    "reject": {
+     "error_code": "INVALID_UNIT",
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001"
+    }
+   }
+  },
+  {
+   "name": "unit miles",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"miles\"}",
+   "expect": {
+    "reject": {
+     "error_code": "INVALID_UNIT",
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001"
+    }
+   }
+  },
+  {
+   "name": "dtc 33 entries",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\",\"dtc_codes\":[\"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\"]}",
+   "expect": {
+    "reject": {
+     "error_code": "INVALID_DTC",
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001"
+    }
+   }
+  },
+  {
+   "name": "dtc 32 duplicates collapse",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\",\"dtc_codes\":[\"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\", \"P0A80\"]}",
+   "expect": {
+    "row": {
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001",
+     "status": "OPEN",
+     "service_center_id": "SC-001",
+     "event_time_ms": 1700000000000,
+     "odometer_km": "100.0",
+     "dtc_codes": [
+      "P0A80"
+     ],
+     "parts_count": 0,
+     "labor_min": null
+    }
+   }
+  },
+  {
+   "name": "dtc bad code",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\",\"dtc_codes\":[\"P0A8\"]}",
+   "expect": {
+    "reject": {
+     "error_code": "INVALID_DTC",
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001"
+    }
+   }
+  },
+  {
+   "name": "dtc non-string element",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\",\"dtc_codes\":[1]}",
+   "expect": {
+    "reject": {
+     "error_code": "INVALID_DTC",
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001"
+    }
+   }
+  },
+  {
+   "name": "dtc not an array",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\",\"dtc_codes\":\"P0A80\"}",
+   "expect": {
+    "reject": {
+     "error_code": "INVALID_DTC",
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001"
+    }
+   }
+  },
+  {
+   "name": "parts qty 0",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\",\"parts\":[{\"part_no\":\"PN-ABC123\",\"qty\":0}]}",
+   "expect": {
+    "reject": {
+     "error_code": "INVALID_PARTS",
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001"
+    }
+   }
+  },
+  {
+   "name": "parts qty 1000",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\",\"parts\":[{\"part_no\":\"PN-ABC123\",\"qty\":1000}]}",
+   "expect": {
+    "reject": {
+     "error_code": "INVALID_PARTS",
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001"
+    }
+   }
+  },
+  {
+   "name": "parts lower-case part_no",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\",\"parts\":[{\"part_no\":\"PN-abc123\",\"qty\":1}]}",
+   "expect": {
+    "reject": {
+     "error_code": "INVALID_PARTS",
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001"
+    }
+   }
+  },
+  {
+   "name": "parts 101 entries",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\",\"parts\":[{\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}, {\"part_no\": \"PN-ABC123\", \"qty\": 1}]}",
+   "expect": {
+    "reject": {
+     "error_code": "INVALID_PARTS",
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001"
+    }
+   }
+  },
+  {
+   "name": "parts 100 x 999",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\",\"parts\":[{\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}, {\"part_no\": \"PN-ABC123\", \"qty\": 999}]}",
+   "expect": {
+    "row": {
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001",
+     "status": "OPEN",
+     "service_center_id": "SC-001",
+     "event_time_ms": 1700000000000,
+     "odometer_km": "100.0",
+     "dtc_codes": [],
+     "parts_count": 99900,
+     "labor_min": null
+    }
+   }
+  },
+  {
+   "name": "labor 1441",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\",\"labor_min\":1441}",
+   "expect": {
+    "reject": {
+     "error_code": "INVALID_LABOR",
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001"
+    }
+   }
+  },
+  {
+   "name": "labor decimal literal",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\",\"labor_min\":1.5}",
+   "expect": {
+    "reject": {
+     "error_code": "INVALID_LABOR",
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001"
+    }
+   }
+  },
+  {
+   "name": "dtc checked before parts and labor",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\",\"dtc_codes\":[\"x\"],\"parts\":1,\"labor_min\":-1}",
+   "expect": {
+    "reject": {
+     "error_code": "INVALID_DTC",
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001"
+    }
+   }
+  },
+  {
+   "name": "malformed text",
+   "key": "SYN-VIN-0001",
+   "value": "{oops",
+   "expect": {
+    "reject": {
+     "error_code": "MALFORMED_JSON",
+     "work_order_id": null,
+     "vin": null
+    },
+    "payload": "[MALFORMED: 5 bytes, not retained]"
+   }
+  },
+  {
+   "name": "top-level array",
+   "key": "SYN-VIN-0001",
+   "value": "[]",
+   "expect": {
+    "reject": {
+     "error_code": "MALFORMED_JSON",
+     "work_order_id": null,
+     "vin": null
+    },
+    "payload": "[MALFORMED: 2 bytes, not retained]"
+   }
+  },
+  {
+   "name": "trailing tokens",
+   "key": "SYN-VIN-0001",
+   "value": "{} {}",
+   "expect": {
+    "reject": {
+     "error_code": "MALFORMED_JSON",
+     "work_order_id": null,
+     "vin": null
+    },
+    "payload": "[MALFORMED: 5 bytes, not retained]"
+   }
+  },
+  {
+   "name": "null value",
+   "key": "SYN-VIN-0001",
+   "value": null,
+   "expect": {
+    "reject": {
+     "error_code": "MALFORMED_JSON",
+     "work_order_id": null,
+     "vin": null
+    },
+    "payload": "[MALFORMED: 0 bytes, not retained]"
+   }
+  },
+  {
+   "name": "notes redacted at any depth in quarantine payload",
+   "key": "SYN-VIN-0001",
+   "value": "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-00000001\",\"ts_ms\":1700000000000,\"status\":\"open\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\",\"technician_notes\":\"SYN-NOTE-000002 replaced coolant pump\",\"parts\":[{\"part_no\":\"PN-ABC123\",\"qty\":1,\"technician_notes\":\"SYN-NOTE-000003\"}]}",
+   "expect": {
+    "reject": {
+     "error_code": "INVALID_STATUS",
+     "work_order_id": "WO-00000001",
+     "vin": "SYN-VIN-0001"
+    },
+    "payload_json": {
+     "vin": "SYN-VIN-0001",
+     "work_order_id": "WO-00000001",
+     "ts_ms": 1700000000000,
+     "status": "open",
+     "service_center_id": "SC-001",
+     "odometer": 100,
+     "odometer_unit": "km",
+     "technician_notes": "[REDACTED]",
+     "parts": [
+      {
+       "part_no": "PN-ABC123",
+       "qty": 1,
+       "technician_notes": "[REDACTED]"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "invalid UTF-8",
+   "key": "SYN-VIN-0001",
+   "value_hex": "7bff7d",
+   "expect": {
+    "reject": {
+     "error_code": "MALFORMED_JSON",
+     "work_order_id": null,
+     "vin": null
+    },
+    "payload": "[MALFORMED: 3 bytes, not retained]"
+   }
+  }
+ ],
+ "sequences": [
+  {
+   "name": "lifecycle: latest event wins",
+   "events": [
+    "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-99990101\",\"ts_ms\":1000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\"}",
+    "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-99990101\",\"ts_ms\":2000,\"status\":\"IN_PROGRESS\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\"}",
+    "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-99990101\",\"ts_ms\":3000,\"status\":\"COMPLETED\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\",\"labor_min\":45}"
+   ],
+   "expect": {
+    "WO-99990101": {
+     "work_order_id": "WO-99990101",
+     "vin": "SYN-VIN-0001",
+     "status": "COMPLETED",
+     "service_center_id": "SC-001",
+     "event_time_ms": 3000,
+     "odometer_km": "100.0",
+     "dtc_codes": [],
+     "parts_count": 0,
+     "labor_min": 45
+    }
+   }
+  },
+  {
+   "name": "late event never overwrites",
+   "events": [
+    "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-99990102\",\"ts_ms\":3000,\"status\":\"COMPLETED\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\"}",
+    "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-99990102\",\"ts_ms\":2000,\"status\":\"IN_PROGRESS\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\"}"
+   ],
+   "expect": {
+    "WO-99990102": {
+     "work_order_id": "WO-99990102",
+     "vin": "SYN-VIN-0001",
+     "status": "COMPLETED",
+     "service_center_id": "SC-001",
+     "event_time_ms": 3000,
+     "odometer_km": "100.0",
+     "dtc_codes": [],
+     "parts_count": 0,
+     "labor_min": null
+    }
+   }
+  },
+  {
+   "name": "tie on event_time: later offset wins",
+   "events": [
+    "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-99990103\",\"ts_ms\":1000,\"status\":\"IN_PROGRESS\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\"}",
+    "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-99990103\",\"ts_ms\":1000,\"status\":\"CANCELLED\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\"}"
+   ],
+   "expect": {
+    "WO-99990103": {
+     "work_order_id": "WO-99990103",
+     "vin": "SYN-VIN-0001",
+     "status": "CANCELLED",
+     "service_center_id": "SC-001",
+     "event_time_ms": 1000,
+     "odometer_km": "100.0",
+     "dtc_codes": [],
+     "parts_count": 0,
+     "labor_min": null
+    }
+   }
+  },
+  {
+   "name": "rejected latest event leaves previous row",
+   "events": [
+    "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-99990104\",\"ts_ms\":1000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\"}",
+    "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-99990104\",\"ts_ms\":2000,\"status\":\"COMPLETED\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\",\"labor_min\":2000}"
+   ],
+   "expect": {
+    "WO-99990104": {
+     "work_order_id": "WO-99990104",
+     "vin": "SYN-VIN-0001",
+     "status": "OPEN",
+     "service_center_id": "SC-001",
+     "event_time_ms": 1000,
+     "odometer_km": "100.0",
+     "dtc_codes": [],
+     "parts_count": 0,
+     "labor_min": null
+    }
+   }
+  },
+  {
+   "name": "identical replay is one row",
+   "events": [
+    "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-99990105\",\"ts_ms\":1000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\"}",
+    "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-99990105\",\"ts_ms\":1000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\"}",
+    "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-99990105\",\"ts_ms\":1000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\"}"
+   ],
+   "expect": {
+    "WO-99990105": {
+     "work_order_id": "WO-99990105",
+     "vin": "SYN-VIN-0001",
+     "status": "OPEN",
+     "service_center_id": "SC-001",
+     "event_time_ms": 1000,
+     "odometer_km": "100.0",
+     "dtc_codes": [],
+     "parts_count": 0,
+     "labor_min": null
+    }
+   }
+  },
+  {
+   "name": "DEFECT-M1 changes which event wins",
+   "events": [
+    "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-99990106\",\"ts_ms\":1000,\"status\":\"OPEN\",\"service_center_id\":\"SC-001\",\"odometer\":100,\"odometer_unit\":\"km\"}",
+    "{\"vin\":\"SYN-VIN-0001\",\"work_order_id\":\"WO-99990106\",\"ts_ms\":2000,\"status\":\"COMPLETED\",\"service_center_id\":\"SC-001\",\"odometer\":1250000,\"odometer_unit\":\"mi\"}"
+   ],
+   "expect": {
+    "WO-99990106": {
+     "work_order_id": "WO-99990106",
+     "vin": "SYN-VIN-0001",
+     "status": "OPEN",
+     "service_center_id": "SC-001",
+     "event_time_ms": 1000,
+     "odometer_km": "100.0",
+     "dtc_codes": [],
+     "parts_count": 0,
+     "labor_min": null
+    }
+   },
+   "legacy": {
+    "defect": "DEFECT-M1",
+    "expect": {
+     "WO-99990106": {
+      "work_order_id": "WO-99990106",
+      "vin": "SYN-VIN-0001",
+      "status": "COMPLETED",
+      "service_center_id": "SC-001",
+      "event_time_ms": 2000,
+      "odometer_km": "2000000.0",
+      "dtc_codes": [],
+      "parts_count": 0,
+      "labor_min": null
+     }
+    }
+   }
+  }
+ ]
+}

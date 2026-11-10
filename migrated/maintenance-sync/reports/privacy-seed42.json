@@ -1,0 +1,10 @@
+{
+ "verdict": "PASS",
+ "pattern": "SYN-NOTE-[0-9]{6}",
+ "positive_control_raw_hits": 8029,
+ "rust_db_hits": 0,
+ "rust_quarantine_hits": 0,
+ "rust_log_hits": 0,
+ "redacted_markers_in_quarantine": 471,
+ "code_version": "8a63005"
+}

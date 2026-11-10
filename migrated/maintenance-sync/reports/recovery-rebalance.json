@@ -1,0 +1,33 @@
+{
+ "name": "rebalance",
+ "clean_rows": 29188,
+ "test_rows": 29188,
+ "rows_missing": 0,
+ "rows_extra": 0,
+ "rows_different": 0,
+ "clean_quarantine": 6727,
+ "test_quarantine_unique": 6727,
+ "test_quarantine_records": 6768,
+ "quarantine_missing": 0,
+ "quarantine_extra": 0,
+ "quarantine_different": 0,
+ "quarantine_repeats_allowed": 41,
+ "stored_positions": {
+  "2": 17014,
+  "0": 15719,
+  "3": 18034,
+  "1": 17135,
+  "4": 12882,
+  "5": 19216
+ },
+ "high_watermarks": {
+  "0": 15719,
+  "1": 17135,
+  "2": 17014,
+  "3": 18034,
+  "4": 12882,
+  "5": 19216
+ },
+ "verdict": "PASS",
+ "code_version": "8a63005"
+}

@@ -1,0 +1,29 @@
+[package]
+name = "maintenance-sync"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.99"
+publish = false
+description = "SYNTHETIC DEMO: Rust port of old-jobs/maintenance-sync (Kafka maintenance events -> Postgres service DB)"
+
+[lib]
+name = "maintenance_sync"
+path = "src/lib.rs"
+
+[[bin]]
+name = "maintenance-sync"
+path = "src/main.rs"
+
+[dependencies]
+# Pinned exactly: Kafka and database clients are correctness critical.
+rdkafka = { version = "=0.38.0", default-features = false, features = ["libz"] }
+postgres = { version = "=0.19.14", features = ["with-chrono-0_4"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["arbitrary_precision", "preserve_order"] }
+rust_decimal = { version = "1", features = ["db-postgres"] }
+chrono = { version = "0.4", default-features = false, features = ["std", "clock"] }
+prometheus = { version = "=0.13.4", default-features = false }
+regex = "1"
+log = "0.4"
+env_logger = "0.11"
+signal-hook = "0.3"

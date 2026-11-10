@@ -1,0 +1,38 @@
+{
+ "verdict": "PASS",
+ "raw_records": 20000,
+ "db_rows": {
+  "legacy": 5928,
+  "rust": 5866,
+  "identical": 4188
+ },
+ "quarantine": {
+  "legacy_records": 1104,
+  "legacy_unique": 1104,
+  "rust_records": 1322,
+  "rust_unique": 1322,
+  "rust_by_code": {
+   "INVALID_DTC": 80,
+   "INVALID_UNIT": 86,
+   "INVALID_PARTS": 74,
+   "MALFORMED_JSON": 184,
+   "INVALID_STATUS": 73,
+   "INVALID_ODOMETER": 312,
+   "INVALID_TS": 89,
+   "MISSING_REQUIRED_FIELD": 89,
+   "INVALID_WORK_ORDER": 94,
+   "KEY_MISMATCH": 86,
+   "INVALID_LABOR": 78,
+   "INVALID_SERVICE_CENTER": 77
+  }
+ },
+ "explained_by_defect": {
+  "DEFECT-M1:FIELD_DIFF": 1678,
+  "DEFECT-M1:MISSING_IN_RUST": 62,
+  "DEFECT-M1:QUARANTINE_EXTRA_IN_RUST": 218,
+  "DEFECT-M1:QUARANTINE_EARLIER_CODE": 2
+ },
+ "unexplained": 0,
+ "problems": [],
+ "code_version": "8a63005"
+}
