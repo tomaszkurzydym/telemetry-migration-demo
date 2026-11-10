@@ -1,0 +1,12 @@
+{
+ "verdict": "PASS",
+ "first_run_exit": 0,
+ "stored_offset": 300,
+ "rows": 126,
+ "deleted_up_to": 350,
+ "second_run_exit": 65,
+ "stored_offset_after": 300,
+ "rows_after": 126,
+ "log": "FATAL data loss: partition 0: stored offset 300 < earliest available 350; refusing to continue (contract \u00a78)",
+ "code_version": "bd2cdf6"
+}

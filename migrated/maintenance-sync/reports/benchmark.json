@@ -1,0 +1,47 @@
+{
+ "note": "single VM, single broker, local Postgres; not production capacity; latency is a histogram bucket upper bound",
+ "runs": [
+  {
+   "mode": "drain",
+   "consumed": 100000,
+   "seconds": 39.28,
+   "events_per_s": 2546,
+   "db_transactions": 200
+  },
+  {
+   "mode": "drain",
+   "consumed": 100000,
+   "seconds": 39.88,
+   "events_per_s": 2507,
+   "db_transactions": 200
+  },
+  {
+   "mode": "drain",
+   "consumed": 100000,
+   "seconds": 41.32,
+   "events_per_s": 2420,
+   "db_transactions": 200
+  },
+  {
+   "mode": "paced_2000_eps",
+   "records": 60000,
+   "p50_le_s": 0.5,
+   "p99_le_s": 0.5
+  },
+  {
+   "mode": "paced_2000_eps",
+   "records": 60000,
+   "p50_le_s": 0.5,
+   "p99_le_s": 0.5
+  },
+  {
+   "mode": "paced_2000_eps",
+   "records": 60000,
+   "p50_le_s": 0.5,
+   "p99_le_s": 0.5
+  }
+ ],
+ "drain_events_per_s_median": 2507,
+ "paced_p99_le_s_median": 0.5,
+ "code_version": "bd2cdf6"
+}

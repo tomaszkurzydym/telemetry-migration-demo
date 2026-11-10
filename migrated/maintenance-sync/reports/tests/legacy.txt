@@ -25,9 +25,9 @@
 [info] GoldenFixtureSpec:
 [info] - golden cases (legacy expectations where a DEFECT is documented)
 [info] - golden sequences: service_records write rules (needs local service-db)
-[info] Run completed in 1 second, 784 milliseconds.
+[info] Run completed in 1 second, 876 milliseconds.
 [info] Total number of tests run: 19
 [info] Suites: completed 4, aborted 0
 [info] Tests: succeeded 19, failed 0, canceled 0, ignored 0, pending 0
 [info] All tests passed.
-[success] Total time: 4 s, completed Nov 10, 2026, 11:55:41 AM
+[success] Total time: 4 s, completed Nov 10, 2026, 12:00:08 PM

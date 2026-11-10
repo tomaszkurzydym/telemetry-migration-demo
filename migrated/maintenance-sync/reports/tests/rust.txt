@@ -1,6 +1,5 @@
     Finished `release` profile [optimized] target(s) in 0.11s
-   Compiling maintenance-sync v0.1.0 (/home/ubuntu/work/telemetry-migration-demo/migrated/maintenance-sync)
-    Finished `release` profile [optimized] target(s) in 0.33s
+    Finished `release` profile [optimized] target(s) in 0.11s
      Running unittests src/lib.rs (target/release/deps/maintenance_sync-f6665ceb7708b6bc)
 
 running 3 tests
@@ -23,7 +22,7 @@ test golden_cases ... ok
 test offset_store_is_fenced ... ok
 test golden_sequences_against_service_db ... ok
 
-test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
 
    Doc-tests maintenance_sync
 
