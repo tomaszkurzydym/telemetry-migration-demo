@@ -35,7 +35,7 @@ $M/scripts/shadow_run.sh --seed "$SEED" --events "$EVENTS" --run "$RUN" | tail -
 D=$M/run/$RUN
 stamp "$D/diff.json" "$R/diff-$RUN.json"; stamp "$D/privacy.json" "$R/privacy-$RUN.json"
 cp "$D/generator.json" "$R/generator-$RUN.json"
-grep -h "] quarantined" "$D/rust.log" | head -3 > "$R/captures/rust-failure-log-sample.txt"
+awk '/\] quarantined/ && n++ < 3' "$D/rust.log" > "$R/captures/rust-failure-log-sample.txt"
 
 echo "== comparator negative controls"
 $PY $M/tools/compare_negative_control.py "$D" /tmp/negctl.json | grep verdict; stamp /tmp/negctl.json "$R/compare-negative-controls.json"

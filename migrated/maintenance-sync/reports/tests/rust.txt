@@ -1,0 +1,33 @@
+    Finished `release` profile [optimized] target(s) in 0.11s
+   Compiling maintenance-sync v0.1.0 (/home/ubuntu/work/telemetry-migration-demo/migrated/maintenance-sync)
+    Finished `release` profile [optimized] target(s) in 0.33s
+     Running unittests src/lib.rs (target/release/deps/maintenance_sync-f6665ceb7708b6bc)
+
+running 3 tests
+test contract::tests::hostile_exponents_do_not_allocate_or_panic ... ok
+test contract::tests::odometer_boundaries ... ok
+test contract::tests::redaction_and_log_line_never_carry_notes ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/release/deps/maintenance_sync-098099c13b72b9e4)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/golden.rs (target/release/deps/golden-5c1e66555a56c44d)
+
+running 3 tests
+test golden_cases ... ok
+test offset_store_is_fenced ... ok
+test golden_sequences_against_service_db ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+   Doc-tests maintenance_sync
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

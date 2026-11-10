@@ -1,0 +1,33 @@
+[info] welcome to sbt 1.10.7 (Ubuntu Java 17.0.20.1)
+[info] loading project definition from /home/ubuntu/work/telemetry-migration-demo/old-jobs/maintenance-sync/project
+[info] loading settings for project root from build.sbt...
+[info] set current project to legacy-maintenance-sync (in build file:/home/ubuntu/work/telemetry-migration-demo/old-jobs/maintenance-sync/)
+[info] MaintenanceCharacterizationSpec:
+[info] - DEFECT-M1: miles are converted with factor 1.6, not 1.609344
+[info] - DEFECT-M1: mile range check uses the wrong factor (1250000 mi accepted as 2000000.0 km)
+[info] - km odometer rounded half-up to 1dp; range 0..2000000 km; at most 3 decimals
+[info] - DTC codes are trimmed, upper-cased, de-duplicated and sorted; absent means empty
+[info] - parts_count is the sum of qty; qty 1..999; absent means 0
+[info] - labor_min optional, 0..1440
+[info] - validation order: first failing check decides the error code
+[info] - technician_notes never leave the job: redacted in quarantine at any depth, absent from rows and logs
+[info] - startup config: missing password fails; toString never prints it
+[info] ServiceDbSpec:
+[info] - upsert: newer event wins, older event ignored, identical replay leaves updated_at unchanged
+[info] MaintenanceQuarantineCharacterizationSpec:
+[info] - quarantine record shape: schema_v, error_code, ids, source, payload string
+[info] - malformed payload is not retained; ids are null
+[info] - invalid work_order_id is not carried on the reject; vin is carried as given
+[info] - null Kafka key; empty string counts as present except for vin
+[info] - status and unit are case-sensitive; ts_ms must be an integer literal
+[info] - unknown fields are ignored; non-string technician_notes are still redacted in quarantine
+[info] - invalid UTF-8 is MALFORMED_JSON
+[info] GoldenFixtureSpec:
+[info] - golden cases (legacy expectations where a DEFECT is documented)
+[info] - golden sequences: service_records write rules (needs local service-db)
+[info] Run completed in 1 second, 784 milliseconds.
+[info] Total number of tests run: 19
+[info] Suites: completed 4, aborted 0
+[info] Tests: succeeded 19, failed 0, canceled 0, ignored 0, pending 0
+[info] All tests passed.
+[success] Total time: 4 s, completed Nov 10, 2026, 11:55:41 AM

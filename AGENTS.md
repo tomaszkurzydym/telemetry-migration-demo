@@ -60,6 +60,11 @@ processing behaviour, crypto, the contract or the tools, and update `docs/EVIDEN
   `technician_notes` is free text and must never reach the database, quarantine or logs.
   Setup: `docker compose up -d kafka service-db && scripts/maintenance_topics.sh --reset`, then
   `.venv/bin/python generator/maintenance_generate.py --seed 42 --events 20000` and `old-jobs/maintenance-sync/run.sh`.
+- Its port is `migrated/maintenance-sync/` (shadow table `service_records_shadow`, offsets in
+  `maintenance_shadow_offsets`); evidence: `migrated/maintenance-sync/scripts/evidence.sh --full`.
+- Learned on that port: never call `fetch_watermarks` from the consume loop (ListOffsets queues behind fetches and
+  stalls processing); measure lag on a separate client. A corrected rule that rejects earlier in the validation
+  order changes the *error code* of later-failing records too; the comparator must attribute those to the defect.
 
 ## Skills (`.agents/skills/`)
 
