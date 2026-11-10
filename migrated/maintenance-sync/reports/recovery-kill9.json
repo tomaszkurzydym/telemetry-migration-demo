@@ -7,17 +7,17 @@
  "rows_different": 0,
  "clean_quarantine": 6727,
  "test_quarantine_unique": 6727,
- "test_quarantine_records": 6769,
+ "test_quarantine_records": 6727,
  "quarantine_missing": 0,
  "quarantine_extra": 0,
  "quarantine_different": 0,
- "quarantine_repeats_allowed": 42,
+ "quarantine_repeats_allowed": 0,
  "stored_positions": {
   "1": 17135,
+  "4": 12882,
+  "5": 19216,
   "2": 17014,
   "3": 18034,
-  "5": 19216,
-  "4": 12882,
   "0": 15719
  },
  "high_watermarks": {
@@ -29,5 +29,5 @@
   "5": 19216
  },
  "verdict": "PASS",
- "code_version": "bd2cdf6"
+ "code_version": "52e5e48"
 }

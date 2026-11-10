@@ -1,7 +1,7 @@
 # Evidence: maintenance-sync migration (SYNTHETIC DEMO)
 
 Reproduce: `migrated/maintenance-sync/scripts/evidence.sh --full` (needs `docker compose up -d kafka service-db`).
-All results below are from code version **`bd2cdf6`** (stamped as `code_version` in every report under
+All results below are from code version **`52e5e48`** (stamped as `code_version` in every report under
 [`../reports/`](../reports/)), one VM, one Kafka broker, local Postgres 16.6. Synthetic data only.
 
 | Check | Result | Report |
@@ -10,12 +10,12 @@ All results below are from code version **`bd2cdf6`** (stamped as `code_version`
 | Legacy characterization + same golden fixtures | 19 passed | `tests/legacy.txt` |
 | Startup refusals | Rust exit 78 without `SERVICE_DB_PASSWORD`, with the legacy table, with the legacy quarantine topic; legacy job refuses without password | `captures/startup-refusals.txt` |
 | Shadow comparison, seed 42, 20,000 events | **PASS, 0 unexplained** | `diff-seed42.json` |
-| Comparator negative controls (10 tamperings) | each makes the comparator FAIL | `compare-negative-controls.json` |
+| Comparator negative controls (12 tamperings) | each makes the comparator FAIL | `compare-negative-controls.json` |
 | Privacy (`SYN-NOTE-nnnnnn`) | 0 hits in Rust DB rows, quarantine, logs; positive control 8,029 hits in raw input | `privacy-seed42.json` |
 | Fail closed on deleted input | Kafka records deleted past the stored position → exit 65, position and rows unchanged | `dataloss.json` |
-| kill -9 ×5 during a 100k-event run | final table = clean run (29,188 rows, 0 missing/extra/different); 6,727 quarantine sources, 0 missing; 42 repeated deliveries | `recovery-kill9.json` |
-| Rebalance (2 instances, one SIGKILLed) | same: 0 missing/extra/different; 24 repeated quarantine deliveries | `recovery-rebalance.json` |
-| Benchmark | backlog drain median 2,507 ev/s (2,420–2,546); paced 2,000 ev/s: p50 and p99 ≤ 0.5 s | `benchmark.json` |
+| kill -9 ×5 during a 100k-event run | final table = clean run (29,188 rows, 0 missing/extra/different); 6,727 quarantine sources, 0 missing; 0 repeated deliveries in this run | `recovery-kill9.json` |
+| Rebalance (2 instances, one SIGKILLed) | same: 0 missing/extra/different; 38 repeated quarantine deliveries | `recovery-rebalance.json` |
+| Benchmark | backlog drain median 2,858 ev/s (2,762–2,901); paced 2,000 ev/s: p50 and p99 ≤ 0.5 s (p99 per run: 0.5, 0.5, 0.5 s) | `benchmark.json` |
 
 ## Shadow comparison in detail
 
@@ -27,7 +27,9 @@ difference is attributed to **DEFECT-M1** (legacy miles ×1.6, Rust ×1.609344) 
   limit only with the wrong factor;
 - 2 records where Rust's earlier `INVALID_ODOMETER` replaces legacy's later `INVALID_DTC`/`INVALID_PARTS`.
 
-Explained records are still checked: an extra quarantine record must carry the correctly redacted source record.
+Explained records are still checked: every Rust quarantine payload must equal its redacted source record, and a
+row explained by a different winner must be the corrected normalization of a real event of that work order, with
+every newer event of it quarantined by Rust.
 DEFECT-M2 (extreme negative exponents) does not occur in the seeded data; it is covered by the golden fixtures.
 
 ## Delivery guarantee (what is and isn't claimed)
@@ -35,6 +37,6 @@ DEFECT-M2 (extreme negative exponents) does not occur in the seeded data; it is 
 - Rows and the consumed Kafka position commit in **one Postgres transaction**: after kill -9 or a rebalance the
   table equals a clean run's, with no lost or extra rows, and stored positions end at the high watermarks.
 - Quarantine is **at-least-once**: records are acknowledged by Kafka before the DB transaction, so a crash can
-  repeat them (42 and 24 repeats above). Consumers identify them by source `(topic, partition, offset)`.
+  repeat them (38 repeats in the rebalance test above). Consumers identify them by source `(topic, partition, offset)`.
 - Not claimed: end-to-end exactly-once, global ordering, production capacity. The benchmark is a single VM;
   latency (Kafka record timestamp → committed transaction) is a histogram bucket bound, not an exact p99.

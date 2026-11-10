@@ -1,1 +1,1 @@
-{"seed": 42, "events": 20000, "vins": 100, "kinds": {"valid": 17677, "invalid": 920, "duplicate": 632, "late": 587, "malformed": 184}, "delivery_failures": 0, "elapsed_s": 0.051}
+{"seed": 42, "events": 20000, "vins": 100, "kinds": {"valid": 17677, "invalid": 920, "duplicate": 632, "late": 587, "malformed": 184}, "delivery_failures": 0, "elapsed_s": 0.042}

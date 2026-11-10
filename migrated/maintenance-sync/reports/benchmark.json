@@ -4,22 +4,22 @@
   {
    "mode": "drain",
    "consumed": 100000,
-   "seconds": 39.28,
-   "events_per_s": 2546,
+   "seconds": 36.21,
+   "events_per_s": 2762,
    "db_transactions": 200
   },
   {
    "mode": "drain",
    "consumed": 100000,
-   "seconds": 39.88,
-   "events_per_s": 2507,
+   "seconds": 34.48,
+   "events_per_s": 2901,
    "db_transactions": 200
   },
   {
    "mode": "drain",
    "consumed": 100000,
-   "seconds": 41.32,
-   "events_per_s": 2420,
+   "seconds": 34.99,
+   "events_per_s": 2858,
    "db_transactions": 200
   },
   {
@@ -41,7 +41,7 @@
    "p99_le_s": 0.5
   }
  ],
- "drain_events_per_s_median": 2507,
+ "drain_events_per_s_median": 2858,
  "paced_p99_le_s_median": 0.5,
- "code_version": "bd2cdf6"
+ "code_version": "52e5e48"
 }

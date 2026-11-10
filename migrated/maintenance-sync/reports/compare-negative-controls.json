@@ -1,6 +1,8 @@
 {
  "verdict": "PASS",
  "controls": {
+  "defect_m1_winner_row_changed": "FAIL (as required)",
+  "both_payloads_corrupt": "FAIL (as required)",
   "row_field_changed": "FAIL (as required)",
   "row_missing": "FAIL (as required)",
   "row_extra": "FAIL (as required)",
@@ -12,5 +14,5 @@
   "shadow_written_by_legacy": "FAIL (as required)",
   "empty_rust_db": "FAIL (as required)"
  },
- "code_version": "bd2cdf6"
+ "code_version": "52e5e48"
 }
