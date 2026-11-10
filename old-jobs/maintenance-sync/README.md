@@ -21,7 +21,7 @@ Kafka maintenance.events.raw (key = VIN)
 - **Normalization:** odometer → `odometer_km` (1 dp, half-up, 0–2,000,000); DTC codes trimmed, upper-cased,
   de-duplicated and sorted; `parts` → `parts_count` (sum of `qty`); `technician_notes` dropped.
 - **Database write:** batched upsert keyed by `work_order_id`. An event older than the stored row (by `event_time`)
-  does not overwrite it, and replaying an event rewrites the same values. Schema: [`sql/schema.sql`](sql/schema.sql).
+  does not overwrite it, and replaying an already-applied event changes nothing (not even `updated_at`). Schema: [`sql/schema.sql`](sql/schema.sql).
 - **Delivery:** at-least-once per micro-batch (Spark checkpoint). DB rows are idempotent; quarantine records may repeat
   after a crash.
 - **Startup:** exits with code 78 before Spark starts if `SERVICE_DB_PASSWORD` is missing.

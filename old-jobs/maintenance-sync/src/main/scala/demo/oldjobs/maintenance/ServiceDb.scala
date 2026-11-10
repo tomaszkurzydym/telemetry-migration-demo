@@ -22,7 +22,7 @@ object DbConfig {
   }
 }
 
-/** Idempotent upsert into service_records: a replay rewrites the same values, and an event older than the stored
+/** Idempotent upsert into service_records: a replay of an already-applied event is a no-op (updated_at unchanged), and an event older than the stored
   * row (by event_time) is ignored. Rows must arrive in (event_time, partition, offset) order per work order. */
 object ServiceDb {
   val WrittenBy = "legacy-maintenance-sync"
@@ -36,7 +36,14 @@ object ServiceDb {
       |  event_time = EXCLUDED.event_time, odometer_km = EXCLUDED.odometer_km, dtc_codes = EXCLUDED.dtc_codes,
       |  parts_count = EXCLUDED.parts_count, labor_min = EXCLUDED.labor_min, schema_v = EXCLUDED.schema_v,
       |  written_by = EXCLUDED.written_by, updated_at = now()
-      |WHERE EXCLUDED.event_time >= service_records.event_time""".stripMargin
+      |WHERE EXCLUDED.event_time >= service_records.event_time
+      |  AND (service_records.vin, service_records.status, service_records.service_center_id,
+      |       service_records.event_time, service_records.odometer_km, service_records.dtc_codes,
+      |       service_records.parts_count, service_records.labor_min, service_records.schema_v,
+      |       service_records.written_by)
+      |      IS DISTINCT FROM
+      |      (EXCLUDED.vin, EXCLUDED.status, EXCLUDED.service_center_id, EXCLUDED.event_time, EXCLUDED.odometer_km,
+      |       EXCLUDED.dtc_codes, EXCLUDED.parts_count, EXCLUDED.labor_min, EXCLUDED.schema_v, EXCLUDED.written_by)""".stripMargin
 
   def upsert(cfg: DbConfig, rows: Iterator[Processed]): Int = {
     if (!rows.hasNext) return 0
